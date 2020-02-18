@@ -1,5 +1,5 @@
 import random
-from .baseBrain import BaseBrain
+from baseBrain import BaseBrain
 
 class RandomBrain(BaseBrain):
 
