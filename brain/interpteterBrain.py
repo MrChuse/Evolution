@@ -45,14 +45,15 @@ class InterpreterBrain(BaseBrain):
             return new
 
         def __iadd__(self, other):
-            new = self.__new__(type(self), self + other, self.modulo)
-            new.__init__(self + other, self.modulo)
+            new = self.__new__(type(self), self.value + other, self.modulo)
+            new.__init__(self.value + other, self.modulo)
             return new
 
         def __str__(self):
             return str(self.value)
 
         def __index__(self):
+            #print(type(self.value))
             return self.value
 
         def __gt__(self, other):
@@ -106,7 +107,7 @@ class InterpreterBrain(BaseBrain):
 
             left_data = self.pointer #calculate
             right_data = self.pointer + self.commands[current_command_id][0] + 1
-            print(left_data, right_data)
+            #print(left_data, right_data)
             if left_data > right_data: #check for the overlap
                 command_and_arguments = self.data[left_data:] + self.data[:right_data]
             else:
@@ -115,23 +116,32 @@ class InterpreterBrain(BaseBrain):
             if self.commands[current_command_id][1] is True: #if the command is final
                 self.pointer = right_data
                 return command_and_arguments #return action and its arguments
-            else: #TODO: jumps, vision
+            else:
                 try:
+                    #print('in the else, try')
                     self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
-
+                    #print(type(self.pointer.value), 'in the else, after try')
                 except Exception:
+                    #print(type(self.pointer.value), 'in the except')
+                    self.pointer += 1
+                    #print(type(self.pointer.value), 'in the except 2')
                     continue
                 finally:
                     self.counter_limit += 1
         return -1 #return -1 if no action was chosen
 
 def main():
-    data = [0, 0, 0, 0, 0, 0, 0, 1]
-    commands = [(0, True), (1, True), (1, False)]
+    data = [3, 3, 4, 1, 0, 0, 0, 1]
+    photosynthesis = (0, True) # id = 0
+    move = (1, True) # id = 1
+    unconditional_jump = (1, False, lambda x, y: y[1])
+    check_field = (3, False, lambda x, y: y[2] if x[y[1]]%2 == 0 else y[3])
+    commands = [photosynthesis, move, unconditional_jump, check_field]
     command_limit = 10
     brain = InterpreterBrain(data, commands, command_limit)
     for i in range(10):
-        print(brain.make_a_move(None), 'picked_move')
+        #print(i, 'th move')
+        print(brain.make_a_move([0, 1, 0, 1, 0, 1, 0, 1, 0]), 'picked_move')
 
 if __name__ == '__main__':
     main()
