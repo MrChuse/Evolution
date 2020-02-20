@@ -40,7 +40,9 @@ class InterpreterBrain(BaseBrain):
             self.modulo = modulo
 
         def __add__(self, other):
-            return (self.value + other) % self.modulo
+            new = self.__new__(type(self), (self.value + other) % self.modulo, self.modulo)
+            new.__init__((self.value + other) % self.modulo, self.modulo)
+            return new
 
         def __iadd__(self, other):
             new = self.__new__(type(self), self + other, self.modulo)
@@ -93,6 +95,7 @@ class InterpreterBrain(BaseBrain):
         TODO: conditional and unconditional jumps, vision of the data
         """
 
+        self.counter_limit = 0
         #execute commands until the limit is reached
         while self.counter_limit < self.command_limit:
             current_command_id = self.data[self.pointer]
@@ -100,25 +103,35 @@ class InterpreterBrain(BaseBrain):
                 self.pointer += 1      #if command is invalid, move the pointer,
                 self.counter_limit += 1  #update the counter, proceed to the next command
                 continue
+
+            left_data = self.pointer #calculate
+            right_data = self.pointer + self.commands[current_command_id][0] + 1
+            print(left_data, right_data)
+            if left_data > right_data: #check for the overlap
+                command_and_arguments = self.data[left_data:] + self.data[:right_data]
+            else:
+                command_and_arguments = self.data[left_data : right_data]
+
             if self.commands[current_command_id][1] is True: #if the command is final
-                from_data = self.pointer
-                self.pointer += (self.commands[current_command_id][0] + 1) #move the pointer
-                if from_data > self.pointer: #check for the overlap
-                    ret = self.data[from_data:] + self.data[:self.pointer]
-                else:
-                    ret = self.data[from_data : self.pointer]
-                return ret #return action and its arguments
+                self.pointer = right_data
+                return command_and_arguments #return action and its arguments
             else: #TODO: jumps, vision
-                pass
+                try:
+                    self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
+
+                except Exception:
+                    continue
+                finally:
+                    self.counter_limit += 1
         return -1 #return -1 if no action was chosen
 
 def main():
     data = [0, 0, 0, 0, 0, 0, 0, 1]
-    commands = [(0, True), (1, True), (2, False)]
+    commands = [(0, True), (1, True), (1, False)]
     command_limit = 10
     brain = InterpreterBrain(data, commands, command_limit)
     for i in range(10):
-        print(brain.make_a_move(None))
+        print(brain.make_a_move(None), 'picked_move')
 
 if __name__ == '__main__':
     main()
