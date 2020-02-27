@@ -31,10 +31,34 @@ class InterpreterBrainTestCase(unittest.TestCase):
     def test_primitive_case(self):
         data = [0]
         self.b = self.buildBrain(data)
-        for i in range(100):
+        for i in range(5):
             with self.subTest(i=i):
                 a = self.b.make_a_move(None)
                 self.assertEqual(a, [0])
+
+    def test_without_final_commands(self):
+        data = [3, 3, 3, 3]
+        self.b = self.buildBrain(data)
+        for i in range(5):
+            with self.subTest(i=i):
+                a = self.b.make_a_move(None)
+                self.assertEqual(a, -1)
+
+    def test_unconditional_jump_with_final_command_without_parameters(self):
+        data = [0, 2, 3, 1]
+        self.b = self.buildBrain(data)
+        for i in range(5):
+            with self.subTest(i=i):
+                a = self.b.make_a_move(None)
+                self.assertEqual(a, [0])
+
+    def test_unconditional_jump_with_final_command_without_parameters(self):
+        data = [1, 2, 2, 2]
+        self.b = self.buildBrain(data)
+        for i in range(5):
+            with self.subTest(i=i):
+                a = self.b.make_a_move(None)
+                self.assertEqual(a, [1, 2])
 
 if __name__ == '__main__':
     unittest.main()
