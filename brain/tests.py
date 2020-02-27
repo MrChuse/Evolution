@@ -19,10 +19,10 @@ class RandomBrainTestCase(unittest.TestCase):
 
 class InterpreterBrainTestCase(unittest.TestCase):
     photosynthesis = (0, True) # id = 0
-    move = (1, True) # id = 1
+    move = (1, True) # id = 1, 4, 5, 6
     unconditional_jump = (1, False, lambda x, y: y[1])
     check_field = (3, False, lambda x, y: y[2] if x[y[1]]%2 == 0 else y[3])
-    commands = [photosynthesis, move, unconditional_jump, check_field]
+    commands = [photosynthesis, move, unconditional_jump, check_field, photosynthesis, photosynthesis, photosynthesis]
     command_limit = 10
 
     def buildBrain(self, data):
@@ -44,6 +44,14 @@ class InterpreterBrainTestCase(unittest.TestCase):
                 a = self.b.make_a_move(None)
                 self.assertEqual(a, -1)
 
+    def test_skip_large_numbers(self):
+        data = [63, 0, 1, 60, 60, 0]
+        self.b = self.buildBrain(data)
+        for correct in ([0], [1, 60], [0]):
+            self.subTest(correct=correct)
+            a = self.b.make_a_move(None)
+            self.assertEqual(a, correct)
+
     def test_unconditional_jump_with_final_command_without_parameters(self):
         data = [0, 2, 3, 1]
         self.b = self.buildBrain(data)
@@ -59,6 +67,22 @@ class InterpreterBrainTestCase(unittest.TestCase):
             with self.subTest(i=i):
                 a = self.b.make_a_move(None)
                 self.assertEqual(a, [1, 2])
+
+    def test_conditional_jump_with_sensor_data_lookup(self):
+        data = [3, 0, 4, 5, 4, 5, 6]
+        self.b = self.buildBrain(data)
+
+        sensor_data = [0]
+        for correct in ([4], [5], [6]):
+            self.subTest(correct=correct, sensor_data=sensor_data)
+            a = self.b.make_a_move(sensor_data)
+            self.assertEqual(a, correct)
+
+        sensor_data = [1]
+        for correct in ([5], [6], [5], [6]):
+            self.subTest(correct=correct, sensor_data=sensor_data)
+            a = self.b.make_a_move(sensor_data)
+            self.assertEqual(a, correct)
 
 if __name__ == '__main__':
     unittest.main()
