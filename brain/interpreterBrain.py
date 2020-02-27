@@ -59,7 +59,7 @@ class InterpreterBrain(BaseBrain):
         def __gt__(self, other):
             return self.value > other.value
 
-    def __init__(self, data, commands, command_limit):
+    def __init__(self, commands, command_limit,  data):
         """
         Parameters
         ----------
@@ -77,7 +77,7 @@ class InterpreterBrain(BaseBrain):
         self.pointer = self.ModuloInteger(0, len(data))
         self.counter_limit = 0
 
-    def make_a_move(self, sensor_data):
+    def make_a_move(self, sensor_data=None):
         """
         Main method for the interpreter
 
@@ -138,7 +138,7 @@ def main():
     check_field = (3, False, lambda x, y: y[2] if x[y[1]]%2 == 0 else y[3])
     commands = [photosynthesis, move, unconditional_jump, check_field]
     command_limit = 10
-    brain = InterpreterBrain(data, commands, command_limit)
+    brain = InterpreterBrain(commands, command_limit, data)
     for i in range(10):
         #print(i, 'th move')
         print(brain.make_a_move([0, 1, 0, 1, 0, 1, 0, 1, 0]), 'picked_move')
