@@ -14,5 +14,5 @@ class BaseBrain(ABC):
         super().__init__()
 
     @abstractmethod
-    def make_a_move(self, sensor_data):
+    def make_a_move(self, sensor_data=None):
         raise NotImplementedError

@@ -45,9 +45,7 @@ class InterpreterBrain(BaseBrain):
             return new
 
         def __iadd__(self, other):
-            new = self.__new__(type(self), self.value + other, self.modulo)
-            new.__init__(self.value + other, self.modulo)
-            return new
+            return self + other
 
         def __str__(self):
             return str(self.value)
@@ -59,7 +57,10 @@ class InterpreterBrain(BaseBrain):
         def __gt__(self, other):
             return self.value > other.value
 
-    def __init__(self, data, commands, command_limit):
+        def __ge__(self, other):
+            return self.value >= other.value
+
+    def __init__(self, commands, command_limit,  data):
         """
         Parameters
         ----------
@@ -77,7 +78,7 @@ class InterpreterBrain(BaseBrain):
         self.pointer = self.ModuloInteger(0, len(data))
         self.counter_limit = 0
 
-    def make_a_move(self, sensor_data):
+    def make_a_move(self, sensor_data=None):
         """
         Main method for the interpreter
 
@@ -107,8 +108,8 @@ class InterpreterBrain(BaseBrain):
 
             left_data = self.pointer #calculate
             right_data = self.pointer + self.commands[current_command_id][0] + 1
-            #print(left_data, right_data)
-            if left_data > right_data: #check for the overlap
+
+            if left_data >= right_data: #check for the overlap
                 command_and_arguments = self.data[left_data:] + self.data[:right_data]
             else:
                 command_and_arguments = self.data[left_data : right_data]
@@ -118,13 +119,13 @@ class InterpreterBrain(BaseBrain):
                 return command_and_arguments #return action and its arguments
             else:
                 try:
-                    #print('in the else, try')
+                    #print(type(self.pointer),self.pointer.value, 'in the else, try')
                     self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
-                    #print(type(self.pointer.value), 'in the else, after try')
+                    #print(type(self.pointer),self.pointer.value, 'in the else, after try')
                 except Exception:
-                    #print(type(self.pointer.value), 'in the except')
+                    #print(type(self.pointer),self.pointer.value, 'in the except')
                     self.pointer += 1
-                    #print(type(self.pointer.value), 'in the except 2')
+                    #print(type(self.pointer),self.pointer.value, 'in the except 2')
                     continue
                 finally:
                     self.counter_limit += 1
@@ -138,7 +139,7 @@ def main():
     check_field = (3, False, lambda x, y: y[2] if x[y[1]]%2 == 0 else y[3])
     commands = [photosynthesis, move, unconditional_jump, check_field]
     command_limit = 10
-    brain = InterpreterBrain(data, commands, command_limit)
+    brain = InterpreterBrain(commands, command_limit, data)
     for i in range(10):
         #print(i, 'th move')
         print(brain.make_a_move([0, 1, 0, 1, 0, 1, 0, 1, 0]), 'picked_move')
