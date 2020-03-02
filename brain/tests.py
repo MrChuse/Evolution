@@ -1,8 +1,12 @@
 from interpreterBrain import InterpreterBrain
 from randomBrain import RandomBrain
+import nn
+from nnBrain import nnBrain
 import unittest
 
+
 class RandomBrainTestCase(unittest.TestCase):
+
     def setUp(self):
         photosynthesis = (0, True) # id = 0
         move = (1, True) # id = 1
@@ -17,13 +21,16 @@ class RandomBrainTestCase(unittest.TestCase):
             else:
                 self.assertEqual(self.commands[a[0]][0] + 1, len(a))
 
+
 class InterpreterBrainTestCase(unittest.TestCase):
+
     photosynthesis = (0, True) # id = 0
     move = (1, True) # id = 1, 4, 5, 6
     unconditional_jump = (1, False, lambda x, y: y[1])
     check_field = (3, False, lambda x, y: y[2] if x[y[1]]%2 == 0 else y[3])
     commands = [photosynthesis, move, unconditional_jump, check_field, photosynthesis, photosynthesis, photosynthesis]
     command_limit = 10
+
 
     def buildBrain(self, data):
         return InterpreterBrain(self.commands, self.command_limit, data)
@@ -83,6 +90,20 @@ class InterpreterBrainTestCase(unittest.TestCase):
             self.subTest(correct=correct, sensor_data=sensor_data)
             a = self.b.make_a_move(sensor_data)
             self.assertEqual(a, correct)
+
+
+class nnBrainTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        d = (nn.Dense, (10, 10))
+        a = (nn.ReLU, set())
+        parameters = (d, a)
+        self.b = nnBrain((parameters,))
+
+    def test_init(self):
+        self.assertTrue(True)
+
+
 
 if __name__ == '__main__':
     unittest.main()
