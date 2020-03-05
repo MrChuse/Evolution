@@ -94,16 +94,21 @@ class InterpreterBrainTestCase(unittest.TestCase):
 
 class nnBrainTestCase(unittest.TestCase):
     
-    def setUp(self):
+    def setUp(self):        
+        photosynthesis = (0, True) # id = 0
+        move = (1, True) # id = 1
+        self.commands = [photosynthesis, move]
+
         d = (nn.Dense, (10, 10))
         a = (nn.ReLU, set())
         parameters = (d, a)
-        self.b = nnBrain((parameters,))
+        self.b = nnBrain(commands=self.commandsdata=(parameters,))
 
     def test_init(self):
         self.assertTrue(True)
 
-
+    def test_make_a_move(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()

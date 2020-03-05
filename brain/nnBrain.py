@@ -6,16 +6,14 @@ class nnBrain(BaseBrain):
 
     class NeuralNetwork:
 
-        def __init__(self, parameters=None, nn1=None, nn2=None):
+        def __init__(self, nn_parameters=None, nn1=None, nn2=None):
             self.layers = []
-            if parameters:
-                for layer in parameters:
-                    print(layer)
+            if nn_parameters:
+                if nn1 is not None or nn2 is not None:
+                    raise ValueError("can't have both nn_parameters and nn1, nn2")
+
+                for layer in nn_parameters:
                     self.layers.append(layer[0](*layer[1]))
-
-
-                self.d = parameters[0][0](*(parameters[0][1]))
-                self.a = parameters[1][0](*(parameters[1][1]))
             else:
                 raise NotImplementedError
        
@@ -25,8 +23,9 @@ class nnBrain(BaseBrain):
             return x
 
 
-    def __init__(self, nn_parameters):
-        self.net = self.NeuralNetwork(*nn_parameters)
+    def __init__(self, commands=None, command_limit=None, data=None):
+        self.net = self.NeuralNetwork(*data) if data else None
+        
 
     def make_a_move(self, sensor_data):
         pass
