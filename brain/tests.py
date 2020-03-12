@@ -1,7 +1,7 @@
 from interpreterBrain import InterpreterBrain
 from randomBrain import RandomBrain
 import nn
-from nnBrain import nnBrain
+from nnBrain import nnBrainUniversal
 import unittest
 
 
@@ -102,10 +102,7 @@ class nnBrainTestCase(unittest.TestCase):
         d = (nn.Dense, (10, 10))
         a = (nn.ReLU, set())
         parameters = (d, a)
-        self.b = nnBrain(commands=self.commandsdata=(parameters,))
-
-    def test_init(self):
-        self.assertTrue(True)
+        self.b = nnBrainUniversal(commands=self.commands, data=(parameters,))
 
     def test_make_a_move(self):
         pass
