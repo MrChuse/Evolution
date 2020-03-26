@@ -1,5 +1,6 @@
-from baseBrain import BaseBrain
 import logging
+from baseBrain import BaseBrain
+
 
 class InterpreterBrain(BaseBrain):
     """
