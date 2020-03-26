@@ -13,7 +13,7 @@ class CellType:
         a number in range [0, 127]
     temperature : int, optional
         cell temperature (default is 0)
-        a number in range [-63, 64]
+        a number in range [-64, 63]
     energy_value : int, optional
         the amount of energy
         that the agent receives eating 1 food (default is 1)
@@ -62,10 +62,10 @@ class Cell:
         self.agent = agent
 
     def is_occupied(self):
-        return True if not self.agent else False
+        return not self.agent
 
     def is_food_here(self):
-        return True if self.cell_type.food > 0 else False
+        return self.cell_type.food > 0
 
     def get_food(self):
         if not self.is_food_here:
