@@ -93,19 +93,24 @@ class InterpreterBrainTestCase(unittest.TestCase):
 
 
 class nnBrainTestCase(unittest.TestCase):
-    
-    def setUp(self):        
-        photosynthesis = (0, True) # id = 0
-        move = (1, True) # id = 1
-        self.commands = [photosynthesis, move]
 
-        d = (nn.Dense, (10, 10))
+    def setUp(self):
+        photosynthesis = (0, True) # id = 0
+        random_command = (2, False)
+        move = (1, True) # id = 1
+        self.commands = [photosynthesis, random_command, move]
+
+        d = (nn.Dense, (8, 10))
         a = (nn.ReLU, set())
         parameters = (d, a)
         self.b = nnBrainUniversal(commands=self.commands, data=(parameters,))
 
     def test_make_a_move(self):
-        pass
+        data = [0, 1, 0, 1, 2, 0, 1, 1]
+        action = self.b.make_a_move(data)
+        print(action)
+        self.assertTrue(self.commands[action[0]])
+        self.assertEqual(len(action) - 1, self.commands[action[0]][0])
 
 if __name__ == '__main__':
     unittest.main()
