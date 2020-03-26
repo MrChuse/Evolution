@@ -1,6 +1,6 @@
 class CellType:
     """
-    A class defines the basic cell configuration.
+    A class that defines the basic cell configuration.
 
     Attributes
     ----------
@@ -20,7 +20,7 @@ class CellType:
         a number in range [1, 15]
     """
 
-    def __init__(self, type_number=0, food=0, temperature=0, energy_value=1):
+    def __init__(self, type_number=0, food=0, temperature=20, energy_value=1):
         self.type_number = type_number
         self.food = food
         self.temperature = temperature
@@ -61,27 +61,7 @@ class Cell:
         self.cell_type = CellType(cell_type)
         self.agent = agent
 
-    def is_occupied(self):
-        return not self.agent
 
-    def is_food_here(self):
-        return self.cell_type.food > 0
-
-    def get_food(self):
-        if not self.is_food_here:
-            return 0
-
-        self.cell_type.food -= 1
-        return self.cell_type.energy_value
-
-    def get_amount_of_food(self):
-        return self.cell_type.food
-
-    def get_temperature(self):
-        return self.cell_type.temperature
-
-    def get_cell_type(self):
-        return self.cell_type.type_number
 
 
 class Field:
@@ -96,10 +76,29 @@ class Field:
         field height
     """
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, command_limit=10):
         self.width = width
         self.height = height
+        self.command_limit = command_limit
         self.field = []
         for i in range(width):
+            self.field.append([])
             for j in range(height):
-                self.field[i][j] = Cell()
+                self.field[i].append(Cell())
+
+        photosynthesis = (0, True) # id = 0
+        move = (1, True) # id = 1
+        self.commands = [photosynthesis, move]
+
+    def add_agents(self, agents):
+        for agent in agents:
+            self.field[agent.pos[0]][agent.pos[1]].agent = agent
+
+    def get_sensor_data(self, agent):
+        pass
+
+    def do_action(self, agent, action):
+        pass
+
+    def get_commands(self):
+        return (self.commands, self.command_limit)
