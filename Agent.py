@@ -16,10 +16,12 @@ class Agent:
         brain.make_a_move to save typing
     """
 
-    def __init__(self, pos, energy, brain_type, brain_settings):
+    def __init__(self, id, pos, energy, brain_type, brain_settings=None):
         """
         Parameters
         ----------
+        id: int
+            Identifier of the agent
         pos : tuple (x, y)
             Position in the grid
         energy : int
@@ -29,6 +31,7 @@ class Agent:
         brain_settings: tuple
             All the settings needed in brain init
         """
+        self.id = id
         self.pos = pos
         self.energy = energy
         if brain_type == 'random':
