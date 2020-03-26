@@ -108,7 +108,6 @@ class nnBrainTestCase(unittest.TestCase):
     def test_make_a_move(self):
         data = [0, 1, 0, 1, 2, 0, 1, 1]
         action = self.b.make_a_move(data)
-        print(action)
         self.assertTrue(self.commands[action[0]])
         self.assertEqual(len(action) - 1, self.commands[action[0]][0])
 
