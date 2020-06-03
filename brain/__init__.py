@@ -1,3 +1,3 @@
-from .baseBrain import BaseBrain
-from .randomBrain import RandomBrain
-from .interpreterBrain import InterpreterBrain
+from brain.baseBrain import BaseBrain
+from brain.randomBrain import RandomBrain
+from brain.interpreterBrain import InterpreterBrain
