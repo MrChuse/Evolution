@@ -16,7 +16,7 @@ class Agent:
         brain.make_a_move to save typing
     """
 
-    def __init__(self, pos, energy, brain_type, brain_settings):
+    def __init__(self, pos, energy, energy_cap, radius, brain_type, brain_settings):
         """
         Parameters
         ----------
@@ -31,6 +31,8 @@ class Agent:
         """
         self.pos = pos
         self.energy = energy
+        self.energy_cap = energy_cap
+        self.radius = radius
         if brain_type == 'random':
             self.brain = brain.RandomBrain(*brain_settings)
         elif brain_type == 'interpreter':
@@ -42,7 +44,7 @@ class Agent:
 
 def main():
     """Small testing case"""
-    a = Agent((0,0), 50, 'random', (10,))
+    a = Agent((0, 0), 50, 255, 1, 'random', (10,))
     print(a)
     for i in range(10):
         print(a.make_a_move(None))
