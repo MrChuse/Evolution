@@ -1,4 +1,4 @@
-from ..Agent import Agent
+from Agent import Agent
 from queue import Queue
 
 class CellType:
@@ -88,9 +88,9 @@ class Field:
     Attributes
     ----------
     width : int, optional
-        field width (default is 1000)
+        field width (default is 5)
     height : int, optional
-        field height (default is 1000)
+        field height (default is 5)
     photosyn_nrg : int, optional
         amount of energy which agent will get during photosynthesis
     ----------
@@ -128,15 +128,15 @@ class Field:
     do_nothing
         do nothing
     temperature_effect (agent):
-        a method that reduces the energy of an agent 
+        a method that reduces the energy of an agent
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=1000, height=1000, photosyn_nrg=8):
+    def __init__(self, width=5, height=5, photosyn_nrg=8):
         self.width = width
         self.height = height
         self.photosyn_nrg = photosyn_nrg
-        self.q = Queue()
+        self.q = []
         self.agents = []
         self.field = []
         for i in range(width):
@@ -146,91 +146,105 @@ class Field:
                 self.field[i].append(Cell())
                 self.agents[i].append(None)
 
-    def spawn_agent(self, pos, energy=50, brain_type='interpreter', brain_settings=None):
-        self.agents[pos[0]][pos[1]] = Agent(pos, energy, brain_type, brain_settings)
-        self.q.put(pos)
-
-    def get_next_agent(self):
-        pos = self.q.get()
-        while self.agents[pos[0]][pos[1]] is None:
-            pos = self.q.get()
-
-        return pos
+    def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
+        self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
+        self.q.append(pos)
 
     def kill_agent(self, target_pos):
-        if target_pos[0] < 0 or target_pos[0] > self.width:
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
             raise AttributeError
 
-        if target_pos[1] < 0 or target_pos[1] > self.height:
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
             raise AttributeError
 
         a = self.agents[target_pos[0]][target_pos[1]]
         self.agents[target_pos[0]][target_pos[1]] = None
+        self.q.remove((target_pos[0], target_pos[1]))
 
         return a.energy
 
     def is_occupied(self, target_pos):
-        return not self.agents[target_pos[0]][target_pos[1]]
+        return self.agents[target_pos[0]][target_pos[1]] is not None
 
-    def make_a_move(self, agent, step):
-        new_pos = (agent.pos[0] + step[0], agent.pos[1] + step[1])
+    def make_a_move(self, agent, new_pos, index):
+        if new_pos[0] < 0 or new_pos[0] >= self.width:
+            return agent.pos
 
-        if new_pos[0] < 0 or new_pos[0] > self.width:
-            raise AttributeError
-
-        if new_pos[1] < 0 or new_pos[1] > self.height:
-            raise AttributeError
+        if new_pos[1] < 0 or new_pos[1] >= self.height:
+            return agent.pos
 
         if abs(agent.pos[0] - new_pos[0]) > agent.radius or abs(agent.pos[1] - new_pos[1]) > agent.radius:
-            raise AttributeError
+            return agent.pos
+
+        if self.is_occupied(new_pos):
+            return agent.pos
 
         agent.energy -= 8 * max(abs(agent.pos[0] - new_pos[0]), abs(agent.pos[1] - new_pos[1]))
+        self.agents[agent.pos[0]][agent.pos[1]] = None
+        agent.pos = new_pos
+        self.agents[new_pos[0]][new_pos[1]] = agent
+        self.q[index] = new_pos
 
-        return new_pos
+        return agent.pos
 
     def photosyn(self, agent):
-        agent.energy = min(255, (agent.energy + self.photosyn_nrg))
+        agent.energy = min(agent.energy_cap, (agent.energy + self.photosyn_nrg))
 
-    def eat(self, agent, target_pos):
-        if target_pos[0] < 0 or target_pos[0] > self.width:
-            raise AttributeError
+    def eat(self, agent, target_pos, index):
+        if agent.pos == target_pos:
+            return
 
-        if target_pos[1] < 0 or target_pos[1] > self.height:
-            raise AttributeError
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
+            return
+
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
+            return
 
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
-            raise AttributeError
+            return
 
         if not self.is_occupied(target_pos):
-            agent.energy = min(agent.energy + self.field[target_pos[0], target_pos[1]].get_food(), 255)
+            agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_food(), agent.energy_cap)
         else:
             received_energy = self.kill_agent(target_pos)
-            agent.energy = min(255, agent.energy + received_energy)
+            agent.energy = min(agent.energy_cap, agent.energy + received_energy)
             self.agents[target_pos[0]][target_pos[1]] = None
 
     def get_info(self, agent, target_pos):
-        if target_pos[0] < 0 or target_pos[0] > self.width:
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
             raise AttributeError
 
-        if target_pos[1] < 0 or target_pos[1] > self.height:
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
             raise AttributeError
 
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             raise AttributeError
 
         is_occupied = self.is_occupied(target_pos)
-        is_food_here = self.field[target_pos[0], target_pos[1]].is_food_here()
+        is_food_here = self.field[target_pos[0]][target_pos[1]].is_food_here()
+        amount_of_food = self.field[target_pos[0]][target_pos[1]].get_amount_of_food()
+        temperature = self.field[target_pos[0]][target_pos[1]].get_temperature()
 
-        return tuple(is_occupied, is_food_here)
+        return is_occupied, is_food_here, amount_of_food, temperature
+
+    def get_sensor_data(self, agent):
+        sensor_data = []
+        for di in range(-agent.radius, agent.radius + 1):
+            for dj in range(-agent.radius, agent.radius + 1):
+                if (agent.pos[0] + di) < 0 or (agent.pos[0] + di) >= self.width:
+                    continue
+                if (agent.pos[1] + dj) < 0 or (agent.pos[1] + dj) >= self.height:
+                    continue
+                sensor_data.append(self.get_info(agent, (agent.pos[0] + di, agent.pos[1] + dj)))
 
     def give_birth_to(self, agent, target_pos, energy):
         if agent.energy < energy:
             raise AttributeError
 
-        if target_pos[0] < 0 or target_pos[0] > self.width:
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
             raise AttributeError
 
-        if target_pos[1] < 0 or target_pos[1] > self.height:
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
             raise AttributeError
 
         if self.is_occupied(target_pos):

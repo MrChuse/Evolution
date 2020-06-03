@@ -33,6 +33,7 @@ class Agent:
         self.energy = energy
         self.energy_cap = energy_cap
         self.radius = radius
+        self.name = brain_type
         if brain_type == 'random':
             self.brain = brain.RandomBrain(*brain_settings)
         elif brain_type == 'interpreter':
@@ -41,6 +42,9 @@ class Agent:
             raise NotImplementedError
 
         self.make_a_move = self.brain.make_a_move
+
+    def __str__(self):
+       return self.name
 
 def main():
     """Small testing case"""
