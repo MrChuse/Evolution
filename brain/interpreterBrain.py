@@ -1,4 +1,4 @@
-from baseBrain import BaseBrain
+from brain.baseBrain import BaseBrain
 import logging
 
 class InterpreterBrain(BaseBrain):
