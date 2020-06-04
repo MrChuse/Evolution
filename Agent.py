@@ -33,6 +33,7 @@ class Agent:
         self.energy = energy
         self.energy_cap = energy_cap
         self.radius = radius
+        self.name = brain_type
         if brain_type == 'random':
             self.brain = brain.RandomBrain(*brain_settings)
         elif brain_type == 'interpreter':
@@ -41,7 +42,7 @@ class Agent:
             raise NotImplementedError
 
         self.make_a_move = self.brain.make_a_move
-
+        
     def mutate(self, rng, mutation_settings):
         if rng.random() > mutation_settings.change_radius_probability:
             dr = rng.random()
@@ -54,6 +55,10 @@ class Agent:
             self.energy_cap = max(16, self.energy_cap + dcap)
         if rng.random() > mutation_settings.mutate_brain_probability:
             self.brain.mutate(rng, mutation_settings)
+
+    def __str__(self):
+       return self.name
+
 
 def main():
     """Small testing case"""
