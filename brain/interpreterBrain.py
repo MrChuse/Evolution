@@ -144,6 +144,9 @@ class InterpreterBrain(BaseBrain):
                 d += 1
         return d <= param
 
+    def get_brain_size(self):
+        return len(self.data)
+
 
 def main():
     data = [3, 3, 4, 1, 0, 0, 0, 1]

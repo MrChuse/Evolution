@@ -37,3 +37,5 @@ class RandomBrain(BaseBrain):
     def check_ally(self, other):
         return False
 
+    def get_brain_size(self):
+        return 0
