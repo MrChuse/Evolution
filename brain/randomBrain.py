@@ -30,3 +30,12 @@ class RandomBrain(BaseBrain):
         if self.commands[a][1] is False:
             return -1
         return [a] + [int(random.random() * 64) for i in range(self.commands[a][0])]
+
+    def mutate(self, rng, mutation_settings):
+        pass
+
+    def check_ally(self, other):
+        return False
+
+    def get_brain_size(self):
+        return 0

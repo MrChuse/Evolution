@@ -16,9 +16,9 @@ k = g.field.width
 n = g.field.height
 
 g.field.spawn_agent((0, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((4, 4), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((0, 4), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((4, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+g.field.spawn_agent((k - 1, n - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+g.field.spawn_agent((0, n - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+g.field.spawn_agent((k - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
 
 CELL_SIZE = min(MAPW//k, MAPH//n)
 

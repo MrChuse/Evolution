@@ -60,12 +60,12 @@ def print_energy_map(g):
 def main():
     g = Game()
     g.field.spawn_agent((0, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((4, 4), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((0, 4), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((4, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    g.field.spawn_agent((g.field.width - 1, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    g.field.spawn_agent((0, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    g.field.spawn_agent((g.field.width - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
 
     while True:
-        print_map(g)
+        print_energy_map(g)
         g.update()
         time.sleep(0.5)
 
