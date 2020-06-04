@@ -1,5 +1,5 @@
 import random
-from baseBrain import BaseBrain
+from brain.baseBrain import BaseBrain
 
 class RandomBrain(BaseBrain):
     """
@@ -30,3 +30,6 @@ class RandomBrain(BaseBrain):
         if self.commands[a][1] is False:
             return -1
         return [a] + [int(random.random() * 64) for i in range(self.commands[a][0])]
+
+    def mutate(self, rng, mutation_settings):
+        pass

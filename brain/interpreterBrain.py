@@ -1,4 +1,4 @@
-from baseBrain import BaseBrain
+from brain.baseBrain import BaseBrain
 import logging
 
 class InterpreterBrain(BaseBrain):
@@ -130,6 +130,12 @@ class InterpreterBrain(BaseBrain):
                 finally:
                     self.counter_limit += 1
         return -1 #return -1 if no action was chosen
+
+    def mutate(self, rng, mutation_settings):
+        for i in range(mutation_settings.number_of_brain_changes):
+            if rng.random() > mutation_settings.change_gene_probability:
+                gene = int(rng.random() * len(self.data))
+                self.data[gene] = int(rng.random() * mutation_settings.gene_max)
 
 def main():
     data = [3, 3, 4, 1, 0, 0, 0, 1]
