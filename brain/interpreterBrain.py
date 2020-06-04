@@ -137,6 +137,14 @@ class InterpreterBrain(BaseBrain):
                 gene = int(rng.random() * len(self.data))
                 self.data[gene] = int(rng.random() * mutation_settings.gene_max)
 
+    def check_ally(self, other, param):
+        d = 0
+        for index in range(len(self.data)):
+            if self.data[index] != self.data[index]:
+                d += 1
+        return d <= param
+
+
 def main():
     data = [3, 3, 4, 1, 0, 0, 0, 1]
     photosynthesis = (0, True) # id = 0

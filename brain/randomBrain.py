@@ -33,3 +33,7 @@ class RandomBrain(BaseBrain):
 
     def mutate(self, rng, mutation_settings):
         pass
+
+    def check_ally(self, other):
+        return False
+
