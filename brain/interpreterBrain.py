@@ -131,6 +131,23 @@ class InterpreterBrain(BaseBrain):
                     self.counter_limit += 1
         return -1 #return -1 if no action was chosen
 
+    def mutate(self, rng, mutation_settings):
+        for i in range(mutation_settings.number_of_brain_changes):
+            if rng.random() > mutation_settings.change_gene_probability:
+                gene = int(rng.random() * len(self.data))
+                self.data[gene] = int(rng.random() * mutation_settings.gene_max)
+
+    def check_ally(self, other, param):
+        d = 0
+        for index in range(len(self.data)):
+            if self.data[index] != self.data[index]:
+                d += 1
+        return d <= param
+
+    def get_brain_size(self):
+        return len(self.data)
+
+
 def main():
     data = [3, 3, 4, 1, 0, 0, 0, 1]
     photosynthesis = (0, True) # id = 0
