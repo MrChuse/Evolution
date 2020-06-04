@@ -1,5 +1,4 @@
 from Agent import Agent
-from queue import Queue
 
 class CellType:
     """
@@ -132,7 +131,7 @@ class Field:
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=5, height=5, photosyn_nrg=8):
+    def __init__(self, width=10, height=10, photosyn_nrg=8):
         self.width = width
         self.height = height
         self.photosyn_nrg = photosyn_nrg
