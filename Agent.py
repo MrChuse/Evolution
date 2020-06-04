@@ -45,7 +45,7 @@ class Agent:
         self.get_brain_size = self.brain.get_brain_size
 
     def __str__(self):
-            return self.name
+        return self.name
 
     def mutate(self, rng, mutation_settings):
         if rng.random() > mutation_settings.change_radius_probability:
