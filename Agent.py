@@ -42,9 +42,25 @@ class Agent:
             raise NotImplementedError
 
         self.make_a_move = self.brain.make_a_move
+        self.get_brain_size = self.brain.get_brain_size
 
     def __str__(self):
-       return self.name
+        return self.name
+
+    def mutate(self, rng, mutation_settings):
+        if rng.random() > mutation_settings.change_radius_probability:
+            dr = rng.random()
+            if dr > 0.5:
+                self.radius += 1
+            else:
+                self.radius = max(1, self.radius - 1)
+        if rng.random() > mutation_settings.change_energy_cap_probability:
+            dcap = int(rng.random() * 33 - 16)
+            self.energy_cap = max(16, self.energy_cap + dcap)
+        if rng.random() > mutation_settings.mutate_brain_probability:
+            self.brain.mutate(rng, mutation_settings)
+
+
 
 def main():
     """Small testing case"""

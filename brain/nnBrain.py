@@ -1,5 +1,5 @@
 import nn
-from baseBrain import BaseBrain
+from brain.baseBrain import BaseBrain
 
 
 class NeuralNetwork:
@@ -51,3 +51,6 @@ class nnBrainUniversal(BaseBrain):
             print('created NN')
         self.make_a_move = self.make_a_move_with_nn
         return self.make_a_move_with_nn(sensor_data)
+
+    def mutate(self, rng, mutation_settings):
+        pass
