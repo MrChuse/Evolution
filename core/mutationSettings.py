@@ -3,7 +3,7 @@ class MutationSettings:
         # for all agents
         self.change_radius_probability = radius
         self.change_energy_cap_probability = cap
-        self.change_brain_probability = brain
+        self.mutate_brain_probability = brain
         
         # for interpreter brain
         self.number_of_brain_changes = number_of_brain_changes

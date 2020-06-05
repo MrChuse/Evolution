@@ -1,28 +1,39 @@
 from core.field import Field
-import time
+from core.mutationSettings import MutationSettings
+
+import copy, time
 
 
 class Game:
     def __init__(self):
         self.field = Field()
 
-        data = [0, 3] * 16
+        data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
         photosynthesis = (0, True)  # id = 0
         move = (2, True)  # id = 1
         eat = (2, True)  # id = 2
         give_birth_to = (3, True)  # id = 3
+        share_energy = (3, True)  # id = 4
         unconditional_jump = (1, False, lambda x, y: y[1])
-        commands = [photosynthesis, move, eat, give_birth_to, unconditional_jump]
+        commands = [photosynthesis, move, eat, give_birth_to, share_energy, unconditional_jump]
         command_limit = 10
         brain_settings = (commands, command_limit, data)
         self.base_brain_settings = brain_settings
-        self.field.spawn_agent((self.field.width // 2, self.field.height // 2), self.base_brain_settings, brain_type='interpreter')
+        self.base_mutation_settings = MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
+                                                       change_gene_probability=0.2, gene_max=64)
+        self.field.spawn_agent((self.field.width // 2, self.field.height - 1),
+                               self.base_brain_settings, brain_type='interpreter')
+
+        # self.max_energy_cap = -1
 
     def update(self):
         for index, pos in enumerate(self.field.q):
             agent = self.field.agents[pos[0]][pos[1]]
             if agent is None:
                 continue
+
+            # if agent.energy_cap > self.max_energy_cap:
+            #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
             if commands_and_arguments == -1:
@@ -41,12 +52,19 @@ class Game:
                 dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
                 dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
                 child_energy = agent.energy * commands_and_arguments[3] // 64 + 1
-                self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy), child_energy, self.base_brain_settings)
+                brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
+                self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy),
+                                         child_energy, brain_settings, self.base_mutation_settings)
+            elif commands_and_arguments[0] == 4:  # id = 4 == share_energy
+                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
+                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
+                amount_of_energy = agent.energy * commands_and_arguments[3] // 64 + 1
+                self.field.share_energy(agent, (agent.pos[0] + dx, agent.pos[1] + dy), amount_of_energy)
             else:
                 self.field.do_nothing()
 
             self.field.temperature_effect(agent)
-            # self.field.brain_size_effect(agent)
+            self.field.brain_size_effect(agent)
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
 
