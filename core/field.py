@@ -131,7 +131,7 @@ class Field:
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=10, height=10, photosyn_nrg=8):
+    def __init__(self, width=50, height=50, photosyn_nrg=8):
         self.width = width
         self.height = height
         self.photosyn_nrg = photosyn_nrg
@@ -142,19 +142,21 @@ class Field:
             self.agents.append([])
             self.field.append([])
             for j in range(height):
-                self.field[i].append(Cell())
+                c = Cell()
+                c.cell_type.temperature = ((j / width * 128) % 128 - 64)
+                self.field[i].append(c)
                 self.agents[i].append(None)
 
-    def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
+    def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='random'):
         self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
         self.q.append(pos)
 
     def kill_agent(self, target_pos):
         if target_pos[0] < 0 or target_pos[0] >= self.width:
-            raise AttributeError
+            return
 
         if target_pos[1] < 0 or target_pos[1] >= self.height:
-            raise AttributeError
+            return
 
         a = self.agents[target_pos[0]][target_pos[1]]
         self.agents[target_pos[0]][target_pos[1]] = None
@@ -211,13 +213,13 @@ class Field:
 
     def get_info(self, agent, target_pos):
         if target_pos[0] < 0 or target_pos[0] >= self.width:
-            raise AttributeError
+            return
 
         if target_pos[1] < 0 or target_pos[1] >= self.height:
-            raise AttributeError
+            return
 
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
-            raise AttributeError
+            return
 
         is_occupied = self.is_occupied(target_pos)
         is_food_here = self.field[target_pos[0]][target_pos[1]].is_food_here()
@@ -236,25 +238,51 @@ class Field:
                     continue
                 sensor_data.append(self.get_info(agent, (agent.pos[0] + di, agent.pos[1] + dj)))
 
-    def give_birth_to(self, agent, target_pos, energy):
+    def give_birth_to(self, agent, target_pos, energy, brain_settings):
         if agent.energy < energy:
-            raise AttributeError
+            return
 
         if target_pos[0] < 0 or target_pos[0] >= self.width:
-            raise AttributeError
+            return
 
         if target_pos[1] < 0 or target_pos[1] >= self.height:
-            raise AttributeError
+            return
 
         if self.is_occupied(target_pos):
-            return 0
+            return
 
-        self.spawn_agent(target_pos, energy)
+        self.spawn_agent(target_pos, brain_settings, energy)
         agent.energy -= energy
+
+        # self.agents[target_pos[0]][target_pos[1]].mutate()
 
     def do_nothing(self):
         pass
 
     def temperature_effect(self, agent):
         t = self.field[agent.pos[0]][agent.pos[1]].get_temperature()
-        agent.energy -= abs(t) // 8 + 1
+        agent.energy -= (abs(t) // 8 + 1) // 1.5
+
+    def brain_size_effect(self, agent):
+        brain_size = agent.get_brain_size()
+        if brain_size < 9:
+            agent.energy -= round(brain_size ** 0.5)
+        else:
+            agent.energy -= round((brain_size ** 0.5 - 2) ** 2 + 2)
+
+    def share_energy(self, agent, target_pos, amount_of_energy):
+        if agent.energy < amount_of_energy:
+            return
+
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
+            return
+
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
+            return
+
+        if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
+            return
+
+        agent.energy -= amount_of_energy
+        target_agent = self.agents[target_pos[0]][target_pos[1]]
+        target_agent.energy = min(255, target_agent.energy + amount_of_energy)
