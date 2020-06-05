@@ -77,6 +77,8 @@ def draw_start_menu(background, screen, menu=True):
                 uploadfield_inputbox.unlock()
             if setsize_button.state and setsize_button.clicked(event):
                 set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
+                setmaph_inputbox.text = ''
+                setmaph_inputbox.text = ''
 
             uploadfield_inputbox.input(event)
             uploadfield_inputbox.draw(screen)
@@ -150,7 +152,7 @@ def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
     else:
         x += max(CELL_SIZE // 5 + 1, 2)
         y += max(CELL_SIZE // 5 + 1, 2)
-        if CELL_SIZE > 8:
+        if CELL_SIZE > 10:
             pygame.draw.rect(surface, (0, 0, 0), (x-1, y-1, CELL_SIZE // 5*3 + 2, CELL_SIZE // 5*3 + 2))
         pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x, y, CELL_SIZE//5*3, CELL_SIZE//5*3))
 
@@ -278,7 +280,7 @@ while life:
                 map_surf.fill(WHITE)
                 draw_settings(background, scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
-            elif god and 10 < event.pos[0] < MAPW + 10 and 10 < event.pos[1] < 10 + MAPH:
+            elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
 
                 if g.field.agents[x][y] is not None:
@@ -290,7 +292,7 @@ while life:
 
                     draw_fake_agent(g.field.agents[x][y], map_surf, eng)
                     pygame.display.update()
-            elif 10 < event.pos[0] < MAPW + 10 and 10 < event.pos[1] < 10 + MAPH:
+            elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.agents[x][y] is not None:
                     info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
