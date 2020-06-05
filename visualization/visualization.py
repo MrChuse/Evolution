@@ -260,7 +260,7 @@ while life:
                     slowdown_button.lock()
                     slowdown_button.draw(scr)
             if speedup_button.clicked(event):
-                if FREQUENCY < 300:
+                if FREQUENCY < 1200:
                     FREQUENCY = FREQUENCY * 2
                     if not slowdown_button.state:
                         slowdown_button.unlock()
