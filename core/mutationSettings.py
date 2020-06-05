@@ -5,7 +5,7 @@ class MutationSettings:
         self.change_energy_cap_probability = cap
         self.change_brain_probability = brain
         
-        # for enterpreter brain
+        # for interpreter brain
         self.number_of_brain_changes = number_of_brain_changes
         self.change_gene_probability = change_gene_probability
         self.gene_max = gene_max
