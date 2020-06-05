@@ -32,12 +32,18 @@ def temperature_to_color(temp):
 # Energy color map
 GRAY = (128, 128, 128)
 YELLOW = (255, 204, 0)
+RED = (255, 0, 0)
 
 
 def energy_to_color(en):
 
     d = en/256
-    return list(GRAY[i] * (1 - d) + YELLOW[i] * d for i in range(3))
+    if en < 256:
+        return list(GRAY[i] * (1 - d) + YELLOW[i] * d for i in range(3))
+    else:
+        d = en/1024
+        return list(YELLOW[i] * (1 - d) + RED[i] * d for i in range(3))
+
 
 
 cell_color_map = {4: ROCK,
@@ -135,15 +141,12 @@ class InfoBox:
         self.stats = ['Eng: ' + str(agent.energy), 'Brn' + str(agent.name)]
         self.stats_surfaces = []
         for stat in self.stats:
-            self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 16).render(stat, True, (0, 0, 0)))
-        self.active = True
+            self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 14).render(stat, True, (0, 0, 0)))
 
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)
-        self.stats = ['Eng: ' + str(self.agent.energy), 'Brn' + str(self.agent.name)]
-        for k, surf in self.stats_surfaces:
-            surf = pygame.font.SysFont('bahnschrift', 14).render(self.stat[k], True, (0, 0, 0))
-            screen.blit(surf, (self.rect.x + 5, self.rect.y + 5))
-        pygame.draw.rect(screen, WHITE, self.rect)
-
+        self.stats = ['Eng: ' + str(self.agent.energy), 'Brn: ' + str(self.agent.name)]
+        for k, surf in enumerate(self.stats_surfaces):
+            surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
+            screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
         pygame.draw.rect(screen, self.color, self.rect, 2)

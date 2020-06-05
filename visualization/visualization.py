@@ -23,13 +23,16 @@ g.field.spawn_agent((k - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 
 CELL_SIZE = min(MAPW//k, MAPH//n)
 
 
-def set_screen_size(background, scr, h=H, w=W):
-    H = h
-    W = w
+def set_screen_size(background, scr, maph=MAPH, mapw=MAPW):
+    MAPH = maphh
+    MAPW = mapw
+    W = MAPW + 200
+    H = MAPH + 40
     background = pygame.display.set_mode((W, H))
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
     print("SIZE SET", H,":",W)
+    draw_start_menu(background, scr)
 
 
 def cell_position(i, j, size):
