@@ -6,15 +6,17 @@ class Game:
     def __init__(self):
         self.field = Field()
 
-        data = [0] * 32
+        data = [0, 3] * 16
         photosynthesis = (0, True)  # id = 0
         move = (2, True)  # id = 1
         eat = (2, True)  # id = 2
+        give_birth_to = (3, True)  # id = 3
         unconditional_jump = (1, False, lambda x, y: y[1])
-        commands = [photosynthesis, move, eat, unconditional_jump]
+        commands = [photosynthesis, move, eat, give_birth_to, unconditional_jump]
         command_limit = 10
         brain_settings = (commands, command_limit, data)
-        self.field.spawn_agent((self.field.width // 2, self.field.height // 2), brain_settings)
+        self.base_brain_settings = brain_settings
+        self.field.spawn_agent((self.field.width // 2, self.field.height // 2), self.base_brain_settings, brain_type='interpreter')
 
     def update(self):
         for index, pos in enumerate(self.field.q):
@@ -23,6 +25,8 @@ class Game:
                 continue
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
+            if commands_and_arguments == -1:
+                continue
             if commands_and_arguments[0] == 0:  # id = 0 == photosyn
                 self.field.photosyn(agent)
             elif commands_and_arguments[0] == 1:  # id = 1 == make_a_move
@@ -33,9 +37,18 @@ class Game:
                 dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
                 dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
                 self.field.eat(agent, (agent.pos[0] + dx, agent.pos[1] + dy), index)
+            elif commands_and_arguments[0] == 3:  # id = 3 == give_birth_to
+                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
+                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
+                child_energy = agent.energy * commands_and_arguments[3] // 64 + 1
+                self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy), child_energy, self.base_brain_settings)
             else:
                 self.field.do_nothing()
+
             self.field.temperature_effect(agent)
+            # self.field.brain_size_effect(agent)
+            if agent.energy < 0:
+                self.field.kill_agent(agent.pos)
 
 
 def print_map(g):
@@ -59,10 +72,10 @@ def print_energy_map(g):
 
 def main():
     g = Game()
-    g.field.spawn_agent((0, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((g.field.width - 1, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((0, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-    g.field.spawn_agent((g.field.width - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    # g.field.spawn_agent((0, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    # g.field.spawn_agent((g.field.width - 1, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    # g.field.spawn_agent((0, g.field.height - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+    # g.field.spawn_agent((g.field.width - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
 
     while True:
         print_energy_map(g)
