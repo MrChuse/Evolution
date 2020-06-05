@@ -9,6 +9,14 @@ class Game:
     def __init__(self):
         self.field = Field()
         self.Statistics = namedtuple("Statistics", "num_agents bots_energy env_energy total_energy avg_brain_len max_brain_len")
+        self.MutationSettings = namedtuple("MutationSettings",
+                                           ["change_radius_probability",
+                                            "change_energy_cap_probability",
+                                            "mutate_brain_probability",
+                                            "number_of_brain_changes",
+                                            "change_gene_probability",
+                                            "gene_max"],
+                                           defaults=(None,) * 3)
         self.stats = []
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
@@ -22,7 +30,7 @@ class Game:
         command_limit = 10
         brain_settings = (commands, command_limit, data)
         self.base_brain_settings = brain_settings
-        self.base_mutation_settings = MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
+        self.base_mutation_settings = self.MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
                                                        change_gene_probability=0.2, gene_max=64)
         self.field.spawn_agent((self.field.width // 2, self.field.height - 1),
                                self.base_brain_settings, brain_type='interpreter')
