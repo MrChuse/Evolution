@@ -1,14 +1,15 @@
 from core.field import Field
-from core.statsistics import Statistics
 from core.mutationSettings import MutationSettings
 
 import copy, time
+from collections import namedtuple
 
 
 class Game:
     def __init__(self):
         self.field = Field()
-        self.stats = Statistics()
+        self.Statistics = namedtuple("Statistics", "num_agents bots_energy env_energy total_energy avg_brain_len max_brain_len")
+        self.stats = []
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
         photosynthesis = (0, True)  # id = 0
@@ -38,7 +39,6 @@ class Game:
             agent = self.field.agents[pos[0]][pos[1]]
             if agent is None:
                 continue
-
 
             # stats
             total_bots += 1
@@ -85,9 +85,8 @@ class Game:
                 self.field.kill_agent(agent.pos)
 
         avg_brain_size = sum_brain_size / total_bots
-        self.stats.add_tick(total_bots, bots_energy, 0, avg_brain_size, max_brain_size)
-
-
+        env_energy = 0
+        self.stats.append(self.Statistics(total_bots, bots_energy, env_energy, bots_energy + env_energy, avg_brain_size, max_brain_size))
 
 
 def print_map(g):
