@@ -138,14 +138,20 @@ class InfoBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.agent = agent
         self.color = GRAY
-        self.stats = ['Eng: ' + str(agent.energy), 'Brn' + str(agent.name)]
+        self.stats = ['Eng: ' + str(agent.energy),
+                      'maxEng: ' + str(agent.energy_cap),
+                      'Brn: ' + str(agent.name),
+                      'Rad: ' + str(agent.radius)]
         self.stats_surfaces = []
         for stat in self.stats:
             self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 14).render(stat, True, (0, 0, 0)))
 
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)
-        self.stats = ['Eng: ' + str(self.agent.energy), 'Brn: ' + str(self.agent.name)]
+        self.stats = ['Eng: ' + str(self.agent.energy),
+                      'maxEng: ' + str(self.agent.energy_cap),
+                      'Brn: ' + str(self.agent.name),
+                      'Rad: ' + str(self.agent.radius)]
         for k, surf in enumerate(self.stats_surfaces):
             surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))

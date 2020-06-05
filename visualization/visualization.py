@@ -76,18 +76,13 @@ def draw_start_menu(background, screen, menu=True):
             if uploadfield_button.clicked(event):
                 uploadfield_inputbox.unlock()
             if setsize_button.state and setsize_button.clicked(event):
-                set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
-                setmaph_inputbox.text = ''
-                setmaph_inputbox.text = ''
+                if 300 < int(setmapw_inputbox.text) < 1000 and \
+                   300 < int(setmaph_inputbox.text) < 1000:
+                    set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
 
-            uploadfield_inputbox.input(event)
-            uploadfield_inputbox.draw(screen)
-
-            setmapw_inputbox.input(event)
-            setmapw_inputbox.draw(screen)
-
-            setmaph_inputbox.input(event)
-            setmaph_inputbox.draw(screen)
+            for box in inputs:
+                box.input(event)
+                box.draw(screen)
 
         if len(setmaph_inputbox.text) > 0 and len(setmapw_inputbox.text) > 0:
             if not setsize_button.state:
@@ -153,8 +148,9 @@ def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
         x += max(CELL_SIZE // 5 + 1, 2)
         y += max(CELL_SIZE // 5 + 1, 2)
         if CELL_SIZE > 10:
-            pygame.draw.rect(surface, (0, 0, 0), (x-1, y-1, CELL_SIZE // 5*3 + 2, CELL_SIZE // 5*3 + 2))
-        pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x, y, CELL_SIZE//5*3, CELL_SIZE//5*3))
+            pygame.draw.rect(surface, (0, 0, 0), (x-2, y-2, CELL_SIZE // 5*3 + 4, CELL_SIZE // 5*3 + 4), 1)
+        pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x-1, y-1, CELL_SIZE//5*3 + 2,
+                                                                                                CELL_SIZE//5*3 + 2))
 
 
 def draw_grid(width, surface):
@@ -216,7 +212,7 @@ god_mode_button.draw(scr)
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
 settings_button.draw(scr)
 
-simple_button = Button(30 + MAPW, 420, 120, 40, state=simple, text='Simple!')
+simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
 simple_button.draw(scr)
 
 info_block = None
@@ -287,7 +283,7 @@ while life:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
+                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'random')
                     print('Agent born')
 
                     draw_fake_agent(g.field.agents[x][y], map_surf, eng)
@@ -301,7 +297,6 @@ while life:
         info_block.draw(scr)
 
     if not pause:
-        #print_map(g)
         g.update()
 
     clock.tick(FREQUENCY)
