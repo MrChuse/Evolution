@@ -85,7 +85,7 @@ class Game:
                 self.field.kill_agent(agent.pos)
 
         avg_brain_size = sum_brain_size / total_bots
-        self.stats.add_tick(total_bots, bots_energy, None, avg_brain_size, max_brain_size)
+        self.stats.add_tick(total_bots, bots_energy, 0, avg_brain_size, max_brain_size)
 
 
 
