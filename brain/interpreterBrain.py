@@ -1,14 +1,40 @@
 from brain.baseBrain import BaseBrain
-import logging
+# import logging
+
+
+class ModuloInteger:
+    def __new__(cls, value, modulo):
+        return object.__new__(cls)
+
+    def __init__(self, value, modulo):
+        self.value = value
+        self.modulo = modulo
+
+    def __add__(self, other):
+        new = self.__new__(type(self), (self.value + other) % self.modulo, self.modulo)
+        new.__init__((self.value + other) % self.modulo, self.modulo)
+        return new
+
+    def __iadd__(self, other):
+        return self + other
+
+    def __str__(self):
+        return str(self.value)
+
+    def __index__(self):
+        # print(type(self.value))
+        return self.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __ge__(self, other):
+        return self.value >= other.value
+
 
 class InterpreterBrain(BaseBrain):
     """
     This class implements a decision-making machine with a turing-complete language
-
-    Sub Classes
-    -----------
-    ModuloInteger
-        A class to perform modulo arithmetics
 
     Attributes
     ----------
@@ -27,55 +53,36 @@ class InterpreterBrain(BaseBrain):
     -------
     make_a_move(self, sensor_data):
         calculates the next action and moves pointer further
-    mutate(self, prob, number_of_bytes=1):
-        changes number_of_bytes commands in the data with probability prob
+    mutate(self, rng, mutation_settings):
+        rng: rng.random should return a number in range 0 to 1
+        mutation_settings: should have number_of_brain_changes,
+                                       change_gene_probability,
+                                       gene_max,
+                                       change_brain_size_probability,
+                                       max_brain_size_change
+        changes data according to mutation settings
+    check_ally(self, other, param):
+        checks whether or not other agent is friendly
+    get_brain_size(self):
+        returns size of the brain
     """
-
-    class ModuloInteger:
-        def __new__(cls, value, modulo):
-            return object.__new__(cls)
-
-        def __init__(self, value, modulo):
-            self.value = value
-            self.modulo = modulo
-
-        def __add__(self, other):
-            new = self.__new__(type(self), (self.value + other) % self.modulo, self.modulo)
-            new.__init__((self.value + other) % self.modulo, self.modulo)
-            return new
-
-        def __iadd__(self, other):
-            return self + other
-
-        def __str__(self):
-            return str(self.value)
-
-        def __index__(self):
-            #print(type(self.value))
-            return self.value
-
-        def __gt__(self, other):
-            return self.value > other.value
-
-        def __ge__(self, other):
-            return self.value >= other.value
 
     def __init__(self, commands, command_limit,  data):
         """
         Parameters
         ----------
-        data : list of ints
-            The program to be interpreted (should not be changed)
         commands : list of tuples (create a Command class?)
             All possible actions of the environment
-        counter_limit : int
+        command_limit : int
             Counter of not final commands executed
+        data : list of ints
+            The program to be interpreted (should not be changed)
         """
         self.data = data
         self.commands = commands
         self.command_limit = command_limit
 
-        self.pointer = self.ModuloInteger(0, len(data))
+        self.pointer = ModuloInteger(0, len(data))
         self.counter_limit = 0
 
     def make_a_move(self, sensor_data=None):
@@ -93,8 +100,6 @@ class InterpreterBrain(BaseBrain):
             ELSE execute that command (it shouldn't interact with the world,
                  only with visible data or the pointer)
             move the pointer to the next command
-
-        TODO: conditional and unconditional jumps, vision of the data
         """
 
         self.counter_limit = 0
@@ -132,6 +137,17 @@ class InterpreterBrain(BaseBrain):
         return -1 #return -1 if no action was chosen
 
     def mutate(self, rng, mutation_settings):
+        """
+        rng : class, module or package
+            rng.random should return a number in range 0 to 1;
+        mutation_settings : class, module or package
+            should have number_of_brain_changes,
+                                       change_gene_probability,
+                                       gene_max,
+                                       change_brain_size_probability,
+                                       max_brain_size_change
+        changes data according to mutation settings
+        """
         for i in range(mutation_settings.number_of_brain_changes):
             if rng.random() < mutation_settings.change_gene_probability:
                 gene = int(rng.random() * len(self.data))
@@ -146,9 +162,16 @@ class InterpreterBrain(BaseBrain):
             else:
                 for i in range(-dsize):
                     self.data.pop(int(rng.random() * len(self.data)))
-            self.pointer = self.ModuloInteger(0, len(self.data))
+            self.pointer = ModuloInteger(0, len(self.data))
 
     def check_ally(self, other, param):
+        """
+        other: InterpreterBrain object
+            the brain to compare with
+        param: positive int
+            number to compare differences (todo: refactor this doc)
+        returns True if brains are very similar
+        """
         d = 0
         for index in range(min(len(self.data), len(other.data))):
             if self.data[index] != self.data[index]:
