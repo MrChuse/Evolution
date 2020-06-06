@@ -99,14 +99,23 @@ def draw_start_menu(background, screen, menu=True):
 
 def draw_settings(background, screen, settings=True):
     save_field_button = Button(40, 40, 120, 40, text='Save field')
+    gr_surf = pygame.Surface((MAPW, MAPH))
+    gr_surf.fill(WHITE)
     upload_field_button = Button(40, 90, 120, 40, text='Upload field')
-    save_population_button = Button(40, 140, 160, 40, text='Save population')
-    upload_population_button = Button(40, 190, 160, 40, text='Upload population')
+    save_population_button = Button(40, 140, 120, 40, text='Save agents')
+    upload_population_button = Button(40, 190, 120, 40, text='Upload agents')
     change_seed_button = Button(40, 240, 120, 40, text='change seed')
     continue_button = Button(40, 290, 120, 40, text='Continue')
 
     buttons = [save_field_button, upload_field_button, save_population_button, upload_population_button,
                change_seed_button, continue_button]
+    global g
+    num_graphic = Graphic(0, 0, 400, 140, g.stats.num_agents, auto=True)
+    eng_graphic = Graphic(0, 150, 400, 140, g.stats.bots_energy, auto=True)
+    graphics = [num_graphic, eng_graphic]
+
+    for gr in graphics:
+        gr.draw(gr_surf)
 
     for button in buttons:
         button.draw(screen)
@@ -114,6 +123,7 @@ def draw_settings(background, screen, settings=True):
     while settings:
 
         background.blit(screen, (0, 0))
+        screen.blit(gr_surf, (170, 40))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu = False
@@ -123,6 +133,8 @@ def draw_settings(background, screen, settings=True):
                 settings = False
 
         pygame.display.update()
+
+    scr.fill(WHITE)
 
 
 def draw_cell(cell, surface, i, j, temp=False):
@@ -192,28 +204,19 @@ god = False
 simple = False
 
 temp_button = Button(30 + MAPW, 10, 120, 40, text='Temperature', state=temp)
-temp_button.draw(scr)
-
 eng_button = Button(30 + MAPW, 60, 120, 40, text='Energy', state=eng)
-eng_button.draw(scr)
-
 slowdown_button = Button(30 + MAPW, 110, 40, 40, text='<<<')
 pause_button = Button(75 + MAPW, 110, 30, 40, text=' ||')
 speedup_button = Button(110 + MAPW, 110, 40, 40, text='>>>')
-
-slowdown_button.draw(scr)
-pause_button.draw(scr)
-speedup_button.draw(scr)
-
 god_mode_button = Button(30 + MAPW, 160, 120, 40, text='GOD MODE', state=god)
 #  god kills agents and spawns them
-god_mode_button.draw(scr)
-
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
-settings_button.draw(scr)
-
 simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
-simple_button.draw(scr)
+
+buttons = [temp_button, eng_button, slowdown_button, pause_button, speedup_button,
+           god_mode_button, settings_button, simple_button]
+for b in buttons:
+    b.draw(scr)
 
 info_block = None
 
@@ -249,7 +252,7 @@ while life:
 
             # speed manipulations
             if slowdown_button.clicked(event):
-                if FREQUENCY > 1:
+                if FREQUENCY > 15:
                     FREQUENCY = FREQUENCY / 2
                     if not speedup_button.state:
                         speedup_button.unlock()
@@ -258,7 +261,7 @@ while life:
                     slowdown_button.lock()
                     slowdown_button.draw(scr)
             if speedup_button.clicked(event):
-                if FREQUENCY < 1200:
+                if FREQUENCY < 2400:
                     FREQUENCY = FREQUENCY * 2
                     if not slowdown_button.state:
                         slowdown_button.unlock()
@@ -274,7 +277,10 @@ while life:
                 god_mode_button.draw(scr)
             if settings_button.clicked(event):
                 map_surf.fill(WHITE)
+                scr.fill(WHITE)
                 draw_settings(background, scr)
+                for b in buttons:
+                    b.draw(scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE

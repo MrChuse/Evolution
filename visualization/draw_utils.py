@@ -156,3 +156,51 @@ class InfoBox:
             surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
         pygame.draw.rect(screen, self.color, self.rect, 2)
+
+
+class Graphic:
+    def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.max = 256
+        self.min = 0
+        self.step = 1
+        if auto:
+            self.set_size_auto(data)
+        self.points = [[i*w//len(data) + x, y + h - data[i]*h//self.max] for i in range(0, len(data), self.step)]
+
+    def data_update(self, data):
+        self.points = [[i * self.rect.w // self.step + self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
+                       for i in range(0, len(data), self.step)]
+
+    def set_max(self, m):
+        self.max = m
+
+    def set_min(self, m):
+        self.min = m
+
+    def set_step(self, st):
+        self.step = st
+
+    def set_size_auto(self, data):
+        self.set_max(max(data) + 10)
+        self.set_min(min(data) - 10)
+        self.set_step(max((len(data)*10//self.rect.w), 1))
+
+    def draw(self, scr, data=None):
+        if data is not None:
+            self.data_update(data)
+        pygame.draw.rect(scr, WHITE, self.rect)
+        pygame.draw.rect(scr, BLACK, self.rect, 2)
+        pygame.draw.aalines(scr, RED, False, self.points, 3)
+
+
+
+
+
+
+
+
+
+
+
+
