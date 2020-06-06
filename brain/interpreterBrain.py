@@ -133,13 +133,24 @@ class InterpreterBrain(BaseBrain):
 
     def mutate(self, rng, mutation_settings):
         for i in range(mutation_settings.number_of_brain_changes):
-            if rng.random() > mutation_settings.change_gene_probability:
+            if rng.random() < mutation_settings.change_gene_probability:
                 gene = int(rng.random() * len(self.data))
                 self.data[gene] = int(rng.random() * mutation_settings.gene_max)
+        if rng.random() < mutation_settings.change_brain_size_probability:
+            dsize = int(rng.random() * (2 * mutation_settings.max_brain_size_change + 1)) - mutation_settings.max_brain_size_change
+            if dsize == 0:
+                return
+            if dsize > 0:
+                for i in range(dsize):
+                    self.data.append(int(rng.random() * mutation_settings.gene_max))
+            else:
+                for i in range(-dsize):
+                    self.data.pop(int(rng.random() * len(self.data)))
+            self.pointer = self.ModuloInteger(0, len(self.data))
 
     def check_ally(self, other, param):
         d = 0
-        for index in range(len(self.data)):
+        for index in range(min(len(self.data), len(other.data))):
             if self.data[index] != self.data[index]:
                 d += 1
         return d <= param
