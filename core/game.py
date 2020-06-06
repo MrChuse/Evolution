@@ -2,12 +2,17 @@ from core.field import Field
 from core.statsistics import Statistics
 from core.mutationSettings import MutationSettings
 
-import copy, time
+import copy
+import time
+import pickle
 
 
 class Game:
-    def __init__(self):
-        self.field = Field()
+    def __init__(self, empty=False):
+        if empty:
+            self.field = None
+        else:
+            self.field = Field()
         self.stats = Statistics()
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
@@ -86,6 +91,25 @@ class Game:
 
         avg_brain_size = sum_brain_size / total_bots
         self.stats.add_tick(total_bots, bots_energy, 0, avg_brain_size, max_brain_size)
+
+    def save_game_to_file(self, filename='game1.pickle'):
+        with open(filename, 'wb') as fout:
+            pickle.dump((self.field, self.stats), fout)
+
+    def load_game_from_file(self, filename='game1.pickle'):
+        with open(filename, 'rb') as fin:
+            self.field, self.stats = pickle.load(fin)
+
+    @staticmethod
+    def save_agent_to_file(agent, filename='agent1.pickle'):
+        with open(filename, 'wb') as fout:
+            pickle.dump(agent, fout)
+
+    @staticmethod
+    def load_agent_from_file(filename='agent1.pickle'):
+        with open(filename, 'rb') as fin:
+            return pickle.load(fin)
+
 
 
 
