@@ -161,10 +161,10 @@ class InfoBox:
 class Graphic:
     def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
         self.rect = pygame.Rect(x, y, w, h)
-        self.max = 256
+        self.max = 1024
         self.min = 0
         self.step = 1
-        if auto:
+        if auto and len(data) > 1:
             self.set_size_auto(data)
         self.points = [[i*w//len(data) + x, y + h - data[i]*h//self.max] for i in range(0, len(data), self.step)]
 
@@ -184,7 +184,7 @@ class Graphic:
     def set_size_auto(self, data):
         self.set_max(max(data) + 10)
         self.set_min(min(data) - 10)
-        self.set_step(max((len(data)*10//self.rect.w), 1))
+        self.set_step(max((len(data)//self.rect.w//30), 1))
 
     def draw(self, scr, data=None):
         if data is not None:
@@ -192,6 +192,12 @@ class Graphic:
         pygame.draw.rect(scr, WHITE, self.rect)
         pygame.draw.rect(scr, BLACK, self.rect, 2)
         pygame.draw.aalines(scr, RED, False, self.points, 3)
+        num = pygame.font.SysFont('bahnschrift', 12)
+        max = num.render(str(self.max - 10), 0, (0, 0, 0))
+        min = num.render(str(self.min + 10), 0, (0, 0, 0))
+        scr.blit(max, (self.rect.x + self.rect.w + 5, self.rect.y))
+        scr.blit(min, (self.rect.x + self.rect.w + 5, self.rect.y + self.rect.h - 12))
+
 
 
 

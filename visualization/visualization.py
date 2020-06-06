@@ -104,18 +104,19 @@ def draw_settings(background, screen, settings=True):
     upload_field_button = Button(40, 90, 120, 40, text='Upload field')
     save_population_button = Button(40, 140, 120, 40, text='Save agents')
     upload_population_button = Button(40, 190, 120, 40, text='Upload agents')
-    change_seed_button = Button(40, 240, 120, 40, text='change seed')
+    change_seed_button = Button(40, 240, 120, 40, text='Change seed')
     continue_button = Button(40, 290, 120, 40, text='Continue')
 
     buttons = [save_field_button, upload_field_button, save_population_button, upload_population_button,
                change_seed_button, continue_button]
     global g
-    num_graphic = Graphic(0, 0, 400, 140, g.stats.num_agents, auto=True)
-    eng_graphic = Graphic(0, 150, 400, 140, g.stats.bots_energy, auto=True)
+    num_graphic = Graphic(0, 0, 380, 140, g.stats.num_agents, auto=True)
+    eng_graphic = Graphic(0, 150, 380, 140, g.stats.bots_energy, auto=True)
     graphics = [num_graphic, eng_graphic]
 
     for gr in graphics:
-        gr.draw(gr_surf)
+        if len(gr.points) > 0:
+            gr.draw(gr_surf)
 
     for button in buttons:
         button.draw(screen)
