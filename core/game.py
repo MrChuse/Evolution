@@ -92,26 +92,27 @@ class Game:
         avg_brain_size = sum_brain_size / total_bots
         self.stats.add_tick(total_bots, bots_energy, 0, avg_brain_size, max_brain_size)
 
-    def save_game_to_file(self, filename='game1.pickle'):
-        with open(filename, 'wb') as fout:
+    def save_game_to_file(self, name='game1'):
+        proper_path = './worlds/' + name + '.wld'
+        with open(proper_path, 'wb') as fout:
             pickle.dump((self.field, self.stats), fout)
 
-    def load_game_from_file(self, filename='game1.pickle'):
-        with open(filename, 'rb') as fin:
+    def load_game_from_file(self, name='game1'):
+        proper_path = './worlds/' + name + '.wld'
+        with open(proper_path, 'rb') as fin:
             self.field, self.stats = pickle.load(fin)
 
     @staticmethod
-    def save_agent_to_file(agent, filename='agent1.pickle'):
-        with open(filename, 'wb') as fout:
+    def save_agent_to_file(agent, name='agent1'):
+        proper_path = './agents/' + name + '.agn'
+        with open(proper_path, 'wb') as fout:
             pickle.dump(agent, fout)
 
     @staticmethod
-    def load_agent_from_file(filename='agent1.pickle'):
-        with open(filename, 'rb') as fin:
+    def load_agent_from_file(name='agent1'):
+        proper_path = './agents/' + name + '.agn'
+        with open(proper_path, 'rb') as fin:
             return pickle.load(fin)
-
-
-
 
 
 def print_map(g):
