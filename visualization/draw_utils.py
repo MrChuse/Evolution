@@ -192,7 +192,8 @@ class Graphic:
             self.data_update(data)
         pygame.draw.rect(scr, WHITE, self.rect)
         pygame.draw.rect(scr, BLACK, self.rect, 2)
-        pygame.draw.aalines(scr, RED, False, self.points, 3)
+        if len(self.points) > 2:
+            pygame.draw.aalines(scr, RED, False, self.points, 3)
         num = pygame.font.SysFont('bahnschrift', 12)
         max = num.render(str(self.max - 10), 0, (0, 0, 0))
         min = num.render(str(self.min + 10), 0, (0, 0, 0))

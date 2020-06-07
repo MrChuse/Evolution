@@ -48,13 +48,13 @@ def draw_start_menu(background, screen, menu=True):
     setmapw_inputbox = InputBox(170, 100, 100, 40)
     setmaph_inputbox = InputBox(280, 100, 100, 40)
     setseed_button = Button(40, 160, 120, 40, text='seed')
-    uploadfield_button = Button(40, 220, 120, 40, text='upload field')
+    uploadgame_button = Button(40, 220, 120, 40, text='upload field')
     # imagine that we need to input a text object to generate a field, than to print it after clicking the button
-    uploadfield_inputbox = InputBox(170, 220, 240, 40)
+    uploadgame_inputbox = InputBox(170, 220, 240, 40)
     sound_button = Button(40, 280, 120, 40, text='sound')
 
-    buttons = [start_button, setsize_button, setseed_button, uploadfield_button, sound_button]
-    inputs = [uploadfield_inputbox, setmapw_inputbox, setmaph_inputbox]
+    buttons = [start_button, setsize_button, setseed_button, uploadgame_button, sound_button]
+    inputs = [uploadgame_inputbox, setmapw_inputbox, setmaph_inputbox]
 
     screen.fill(WHITE)
 
@@ -73,8 +73,8 @@ def draw_start_menu(background, screen, menu=True):
                 sys.exit()
             if start_button.clicked(event):
                 menu = False
-            if uploadfield_button.clicked(event):
-                uploadfield_inputbox.unlock()
+            if uploadgame_button.clicked(event):
+                uploadgame_inputbox.unlock()
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
@@ -98,18 +98,22 @@ def draw_start_menu(background, screen, menu=True):
 
 
 def draw_settings(background, screen, settings=True):
-    save_field_button = Button(40, 40, 120, 40, text='Save field')
-    upload_field_button = Button(40, 90, 120, 40, text='Upload field')
-    save_population_button = Button(40, 140, 120, 40, text='Save agents')
-    upload_population_button = Button(40, 190, 120, 40, text='Upload agents')
+    save_world_button = Button(40, 40, 120, 40, text='Save field')
+    save_world_inputbox = InputBox(170, 40, 120, 40)
+    upload_world_button = Button(40, 90, 120, 40, text='Upload field')
+    save_agent_button = Button(40, 140, 120, 40, text='Save agents')
+    upload_agent_button = Button(40, 190, 120, 40, text='Upload agents')
     change_seed_button = Button(40, 240, 120, 40, text='Change seed')
     continue_button = Button(40, H - 70, 120, 40, text='Continue')
 
-    buttons = [save_field_button, upload_field_button, save_population_button, upload_population_button,
+    buttons = [save_world_button, upload_world_button, save_agent_button, upload_agent_button,
                change_seed_button, continue_button]
 
+    input_boxes = [save_world_inputbox]
     for button in buttons:
         button.draw(screen)
+    for box in input_boxes:
+        box.draw(screen)
 
     while settings:
 
@@ -121,6 +125,12 @@ def draw_settings(background, screen, settings=True):
                 sys.exit()
             if continue_button.clicked(event):
                 settings = False
+            for box in input_boxes:
+                box.input(event)
+                box.draw(screen)
+            if save_world_button.clicked(event):
+                global g
+                g.save_game_to_file(save_world_inputbox.text)
 
         pygame.display.update()
 
