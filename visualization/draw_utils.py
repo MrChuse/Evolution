@@ -32,12 +32,18 @@ def temperature_to_color(temp):
 # Energy color map
 GRAY = (128, 128, 128)
 YELLOW = (255, 204, 0)
+RED = (255, 0, 0)
 
 
 def energy_to_color(en):
 
     d = en/256
-    return list(GRAY[i] * (1 - d) + YELLOW[i] * d for i in range(3))
+    if en < 256:
+        return list(GRAY[i] * (1 - d) + YELLOW[i] * d for i in range(3))
+    else:
+        d = en/1024
+        return list(YELLOW[i] * (1 - d) + RED[i] * d for i in range(3))
+
 
 
 cell_color_map = {4: ROCK,
@@ -132,18 +138,75 @@ class InfoBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.agent = agent
         self.color = GRAY
-        self.stats = ['Eng: ' + str(agent.energy), 'Brn' + str(agent.name)]
+        self.stats = ['Eng: ' + str(agent.energy),
+                      'maxEng: ' + str(agent.energy_cap),
+                      'Brn: ' + str(agent.name),
+                      'Rad: ' + str(agent.radius)]
         self.stats_surfaces = []
         for stat in self.stats:
-            self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 16).render(stat, True, (0, 0, 0)))
-        self.active = True
+            self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 14).render(stat, True, (0, 0, 0)))
 
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)
-        self.stats = ['Eng: ' + str(self.agent.energy), 'Brn' + str(self.agent.name)]
-        for k, surf in self.stats_surfaces:
-            surf = pygame.font.SysFont('bahnschrift', 14).render(self.stat[k], True, (0, 0, 0))
-            screen.blit(surf, (self.rect.x + 5, self.rect.y + 5))
-        pygame.draw.rect(screen, WHITE, self.rect)
-
+        self.stats = ['Eng: ' + str(self.agent.energy),
+                      'maxEng: ' + str(self.agent.energy_cap),
+                      'Brn: ' + str(self.agent.name),
+                      'Rad: ' + str(self.agent.radius)]
+        for k, surf in enumerate(self.stats_surfaces):
+            surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
+            screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
         pygame.draw.rect(screen, self.color, self.rect, 2)
+
+
+class Graphic:
+    def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.max = 1024
+        self.min = 0
+        self.step = 1
+        if auto and len(data) > 1:
+            self.set_size_auto(data)
+        self.points = [[i*w//len(data) + x, y + h - data[i]*h//self.max] for i in range(0, len(data), self.step)]
+
+    def data_update(self, data):
+        self.points = [[i * self.rect.w // self.step + self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
+                       for i in range(0, len(data), self.step)]
+
+    def set_max(self, m):
+        self.max = m
+
+    def set_min(self, m):
+        self.min = m
+
+    def set_step(self, st):
+        self.step = st
+
+    def set_size_auto(self, data):
+        self.set_max(max(data) + 10)
+        self.set_min(min(data) - 10)
+        self.set_step(max((len(data)//self.rect.w//30), 1))
+
+    def draw(self, scr, data=None):
+        if data is not None:
+            self.data_update(data)
+        pygame.draw.rect(scr, WHITE, self.rect)
+        pygame.draw.rect(scr, BLACK, self.rect, 2)
+        pygame.draw.aalines(scr, RED, False, self.points, 3)
+        num = pygame.font.SysFont('bahnschrift', 12)
+        max = num.render(str(self.max - 10), 0, (0, 0, 0))
+        min = num.render(str(self.min + 10), 0, (0, 0, 0))
+        scr.blit(max, (self.rect.x + self.rect.w + 5, self.rect.y))
+        scr.blit(min, (self.rect.x + self.rect.w + 5, self.rect.y + self.rect.h - 12))
+
+
+
+
+
+
+
+
+
+
+
+
+

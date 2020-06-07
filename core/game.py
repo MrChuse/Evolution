@@ -1,4 +1,5 @@
 from core.field import Field
+from core.statsistics import Statistics
 from core.mutationSettings import MutationSettings
 
 import copy, time
@@ -7,6 +8,7 @@ import copy, time
 class Game:
     def __init__(self):
         self.field = Field()
+        self.stats = Statistics()
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
         photosynthesis = (0, True)  # id = 0
@@ -28,6 +30,10 @@ class Game:
 
     def update(self):
         self.field.add_minerals()
+        total_bots = 0
+        bots_energy = 0
+        sum_brain_size = 0
+        max_brain_size = -1
 
         for index, pos in enumerate(self.field.q):
             agent = self.field.agents[pos[0]][pos[1]]
@@ -40,6 +46,17 @@ class Game:
                     self.field.q.remove(pos)
                     self.field.agents[pos[0]][pos[1]] = None
                 continue
+
+            # stats
+            total_bots += 1
+            bots_energy += agent.energy
+            brain_size = agent.get_brain_size()
+            sum_brain_size += brain_size
+            if brain_size > max_brain_size:
+                max_brain_size = brain_size
+
+            # if agent.energy_cap > self.max_energy_cap:
+            #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
             if commands_and_arguments == -1:
@@ -73,6 +90,11 @@ class Game:
             self.field.brain_size_effect(agent)
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
+
+        avg_brain_size = sum_brain_size / total_bots
+        self.stats.add_tick(total_bots, bots_energy, 0, avg_brain_size, max_brain_size)
+
+
 
 
 def print_map(g):
