@@ -161,6 +161,7 @@ class InfoBox:
 class Graphic:
     def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
         self.rect = pygame.Rect(x, y, w, h)
+        self.name=name
         self.max = 1024
         self.min = 0
         self.step = 1
@@ -169,7 +170,7 @@ class Graphic:
         self.points = [[i*w//len(data) + x, y + h - data[i]*h//self.max] for i in range(0, len(data), self.step)]
 
     def data_update(self, data):
-        self.points = [[i * self.rect.w // self.step + self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
+        self.points = [[i * self.rect.w // len(data)+ self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
                        for i in range(0, len(data), self.step)]
 
     def set_max(self, m):
@@ -197,16 +198,6 @@ class Graphic:
         min = num.render(str(self.min + 10), 0, (0, 0, 0))
         scr.blit(max, (self.rect.x + self.rect.w + 5, self.rect.y))
         scr.blit(min, (self.rect.x + self.rect.w + 5, self.rect.y + self.rect.h - 12))
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if len(self.name) > 0:
+            name = num.render(self.name, 0, (0, 0, 255))
+            scr.blit(name, (self.rect.x, self.rect.y + self.rect.h + 2))
