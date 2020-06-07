@@ -132,7 +132,7 @@ class Field:
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=48, height=48, photosyn_nrg=8):
+    def __init__(self, width=48, height=48, photosyn_nrg=8, seed=None):
         self.width = width
         self.height = height
         self.photosyn_nrg = photosyn_nrg
@@ -149,8 +149,9 @@ class Field:
                 self.field[i].append(c)
                 self.agents[i].append(None)
 
-        seed = random.randrange(sys.maxsize)
-        self.rng = random.Random(seed)
+        if seed is None:
+            seed = random.randrange(sys.maxsize)
+        self.rng = random.Random(seed)  # 1297696744
         print("Seed is:", seed)
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
@@ -274,7 +275,7 @@ class Field:
         if brain_size <= 64:
             agent.energy -= round(0.5 * brain_size ** 0.5)
         else:
-            agent.energy -= round((brain_size - 64) ** 2 + 4)
+            agent.energy -= ((brain_size - 64) ** 2) // 5 + 4
 
     def share_energy(self, agent, target_pos, amount_of_energy):
         if agent.energy < amount_of_energy:
