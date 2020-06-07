@@ -168,7 +168,7 @@ def draw_statistics(background, screen, statistics=True):
             if continue_button.clicked(event):
                 statistics = False
             for button in gr_buttons:
-                if button.clicked(event) and len(g.stas)>2:
+                if button.clicked(event) and len(g.stats)>2:
                     gr_surf.fill(WHITE)
                     graphics[0] = graphics[1]
                     graphics[0].rect.move_ip(0, -200)
