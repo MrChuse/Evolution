@@ -23,13 +23,18 @@ g.field.spawn_agent((k - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 
 CELL_SIZE = min(MAPW//k, MAPH//n)
 
 
-def set_screen_size(background, scr, h=H, w=W):
-    H = h
-    W = w
+def set_screen_size(background, scr, mapw, maph):
+    global MAPH, MAPW, W, H, CELL_SIZE
+    MAPH = maph
+    MAPW = mapw
+    W = MAPW + 200
+    H = MAPH + 40
+    CELL_SIZE = min(MAPW // k, MAPH // n)
     background = pygame.display.set_mode((W, H))
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
     print("SIZE SET", H,":",W)
+    draw_start_menu(background, scr)
 
 
 def cell_position(i, j, size):
@@ -38,7 +43,10 @@ def cell_position(i, j, size):
 
 def draw_start_menu(background, screen, menu=True):
     start_button = Button(40, 40, 120, 40, text='Start')
-    setsize_button = Button(40, 100, 120, 40, text='screen size')
+    setsize_button = Button(40, 100, 120, 40, text='Set size')
+    setsize_button.lock()
+    setmapw_inputbox = InputBox(170, 100, 100, 40)
+    setmaph_inputbox = InputBox(280, 100, 100, 40)
     setseed_button = Button(40, 160, 120, 40, text='seed')
     uploadfield_button = Button(40, 220, 120, 40, text='upload field')
     # imagine that we need to input a text object to generate a field, than to print it after clicking the button
@@ -46,7 +54,7 @@ def draw_start_menu(background, screen, menu=True):
     sound_button = Button(40, 280, 120, 40, text='sound')
 
     buttons = [start_button, setsize_button, setseed_button, uploadfield_button, sound_button]
-    inputs = [uploadfield_inputbox]
+    inputs = [uploadfield_inputbox, setmapw_inputbox, setmaph_inputbox]
 
     screen.fill(WHITE)
 
@@ -67,8 +75,26 @@ def draw_start_menu(background, screen, menu=True):
                 menu = False
             if uploadfield_button.clicked(event):
                 uploadfield_inputbox.unlock()
+            if setsize_button.state and setsize_button.clicked(event):
+                set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
+
             uploadfield_inputbox.input(event)
             uploadfield_inputbox.draw(screen)
+
+            setmapw_inputbox.input(event)
+            setmapw_inputbox.draw(screen)
+
+            setmaph_inputbox.input(event)
+            setmaph_inputbox.draw(screen)
+
+        if len(setmaph_inputbox.text) > 0 and len(setmapw_inputbox.text) > 0:
+            if not setsize_button.state:
+                setsize_button.unlock()
+                setsize_button.draw(screen)
+                pygame.display.update()
+        elif setsize_button.state:
+            setsize_button.lock()
+            setsize_button.draw(screen)
 
         pygame.display.update()
     screen.fill(WHITE)
@@ -157,7 +183,8 @@ scr = pygame.Surface((W, H))
 scr.fill(WHITE)
 
 draw_start_menu(background, scr)
-
+scr = pygame.Surface((W, H))
+scr.fill(WHITE)
 map_surf = pygame.Surface((MAPW + 1, MAPH + 1))
 map_surf.fill((255, 255, 255))
 
@@ -233,7 +260,7 @@ while life:
                     slowdown_button.lock()
                     slowdown_button.draw(scr)
             if speedup_button.clicked(event):
-                if FREQUENCY < 300:
+                if FREQUENCY < 1200:
                     FREQUENCY = FREQUENCY * 2
                     if not slowdown_button.state:
                         slowdown_button.unlock()
