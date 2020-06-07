@@ -23,11 +23,13 @@ class CellType:
         a number in range [1, 15]
     """
 
-    def __init__(self, type_number=0, food=0, temperature=0, energy_value=1):
+    def __init__(self, type_number=0, meat=0, minerals=0, temperature=0):
         self.type_number = type_number
-        self.food = food
+        self.meat = meat
+        self.minerals = minerals
         self.temperature = temperature
-        self.energy_value = energy_value
+        self.meat_energy_value = 12 - temperature // 8
+        self.mineral_energy_value = temperature // 15 + 1
 
 
 class Cell:
@@ -63,23 +65,46 @@ class Cell:
         self.agent = agent
 
     def is_food_here(self):
-        return self.cell_type.food > 0
+        return self.cell_type.meat > 0 | self.cell_type.minerals > 0
 
-    def get_food(self):
-        if not self.is_food_here:
-            return 0
+    def is_meat_here(self):
+        return self.cell_type.meat > 0
 
-        self.cell_type.food -= 1
-        return self.cell_type.energy_value
+    def is_minerals_here(self):
+        return self.cell_type.minerals > 0
 
-    def get_amount_of_food(self):
-        return self.cell_type.food
+    def get_meat(self):
+        if not self.is_meat_here():
+            return
+
+        self.cell_type.meat -= 1
+        return self.cell_type.meat_energy_value
+
+    def get_mineral(self):
+        if not self.is_minerals_here():
+            return
+
+        self.cell_type.minerals -= 1
+        return self.cell_type.mineral_energy_value
+
+    def get_amount_of_meat(self):
+        return self.cell_type.meat
+
+    def get_amount_of_minerals(self):
+        return self.cell_type.minerals
 
     def get_temperature(self):
         return self.cell_type.temperature
 
     def get_cell_type(self):
         return self.cell_type.type_number
+
+    def add_mineral(self):
+        self.cell_type.minerals = min(self.cell_type.minerals + 1, 127)
+
+    def add_meat(self, amount):
+        self.cell_type.meat += amount
+
 
 class Field:
     """
@@ -132,7 +157,7 @@ class Field:
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=48, height=48, photosyn_nrg=8):
+    def __init__(self, width=21, height=21, photosyn_nrg=8):
         self.width = width
         self.height = height
         self.photosyn_nrg = photosyn_nrg
@@ -164,11 +189,18 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-        a = self.agents[target_pos[0]][target_pos[1]]
-        self.agents[target_pos[0]][target_pos[1]] = None
-        self.q.remove((target_pos[0], target_pos[1]))
+        print('dead')
+        print(target_pos)
+        if self.agents[target_pos[0]][target_pos[1]].energy < 0:
+            print('because energy < 0')
+            self.q.remove(target_pos)
+            self.agents[target_pos[0]][target_pos[1]] = None
+            return
 
-        return a.energy
+        self.agents[target_pos[0]][target_pos[1]].alive = False
+        ('because someone kills him')
+
+        return self.agents[target_pos[0]][target_pos[1]].energy
 
     def is_occupied(self, target_pos):
         return self.agents[target_pos[0]][target_pos[1]] is not None
@@ -211,11 +243,16 @@ class Field:
             return
 
         if not self.is_occupied(target_pos):
-            agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_food(), agent.energy_cap)
+            agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_mineral(), agent.energy_cap)
         else:
+            if not self.agents[target_pos[0]][target_pos[1]].alive:
+                agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_meat(), agent.energy_cap)
+
+            if agent.brain.check_ally(self.agents[target_pos[0]][target_pos[1]], 2):
+                return
+
             received_energy = self.kill_agent(target_pos)
-            agent.energy = min(agent.energy_cap, agent.energy + received_energy)
-            self.agents[target_pos[0]][target_pos[1]] = None
+            self.field[target_pos[0]][target_pos[1]].add_meat(received_energy // 8)
 
     def get_info(self, agent, target_pos):
         if target_pos[0] < 0 or target_pos[0] >= self.width:
@@ -229,10 +266,11 @@ class Field:
 
         is_occupied = self.is_occupied(target_pos)
         is_food_here = self.field[target_pos[0]][target_pos[1]].is_food_here()
-        amount_of_food = self.field[target_pos[0]][target_pos[1]].get_amount_of_food()
+        amount_of_meat = self.field[target_pos[0]][target_pos[1]].get_amount_of_meat()
+        amount_of_minerals = self.field[target_pos[0]][target_pos[1]].get_amount_of_minerals()
         temperature = self.field[target_pos[0]][target_pos[1]].get_temperature()
 
-        return is_occupied, is_food_here, amount_of_food, temperature
+        return is_occupied, is_food_here, amount_of_meat, amount_of_minerals, temperature
 
     def get_sensor_data(self, agent):
         sensor_data = []
@@ -266,10 +304,16 @@ class Field:
         pass
 
     def temperature_effect(self, agent):
+        if not agent.alive:
+            return
+
         t = self.field[agent.pos[0]][agent.pos[1]].get_temperature()
         agent.energy -= (abs(t) // 8 + 1)
 
     def brain_size_effect(self, agent):
+        if not agent.alive:
+            return
+
         brain_size = agent.get_brain_size()
         if brain_size <= 64:
             agent.energy -= round(0.5 * brain_size ** 0.5)
@@ -295,3 +339,8 @@ class Field:
         agent.energy -= amount_of_energy
         target_agent = self.agents[target_pos[0]][target_pos[1]]
         target_agent.energy = min(255, target_agent.energy + amount_of_energy)
+
+    def add_minerals(self):
+        for row in self.field:
+            for cell in row:
+                cell.add_mineral()
