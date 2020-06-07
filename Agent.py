@@ -34,7 +34,6 @@ class Agent:
         self.energy_cap = energy_cap
         self.radius = radius
         self.name = brain_type
-        self.alive = True
         if brain_type == 'random':
             self.brain = brain.RandomBrain(*brain_settings)
         elif brain_type == 'interpreter':
