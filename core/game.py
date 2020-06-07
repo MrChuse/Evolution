@@ -1,5 +1,4 @@
 from core.field import Field
-from core.mutationSettings import MutationSettings
 
 import copy
 import time
@@ -8,7 +7,7 @@ from collections import namedtuple
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, empty=None):
         if empty:
             self.field = None
         else:
@@ -36,7 +35,7 @@ class Game:
         brain_settings = (commands, command_limit, data)
         self.base_brain_settings = brain_settings
         self.base_mutation_settings = self.MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
-                                                       change_gene_probability=0.2, gene_max=64)
+                                                            change_gene_probability=0.2, gene_max=64)
         self.field.spawn_agent((self.field.width // 2, self.field.height - 1),
                                self.base_brain_settings, brain_type='interpreter')
 
