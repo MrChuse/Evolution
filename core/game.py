@@ -1,13 +1,18 @@
 from core.field import Field
 from core.mutationSettings import MutationSettings
 
-import copy, time
+import copy
+import time
+import pickle
 from collections import namedtuple
 
 
 class Game:
     def __init__(self):
-        self.field = Field()
+        if empty:
+            self.field = None
+        else:
+            self.field = Field()
         self.Statistics = namedtuple("Statistics", "num_agents bots_energy env_energy total_energy avg_brain_len max_brain_len")
         self.MutationSettings = namedtuple("MutationSettings",
                                            ["change_radius_probability",
@@ -95,6 +100,28 @@ class Game:
         avg_brain_size = sum_brain_size / total_bots
         env_energy = 0
         self.stats.append(self.Statistics(total_bots, bots_energy, env_energy, bots_energy + env_energy, avg_brain_size, max_brain_size))
+        
+    def save_game_to_file(self, name='game1'):
+        proper_path = './worlds/' + name + '.wld'
+        with open(proper_path, 'wb') as fout:
+            pickle.dump((self.field, self.stats), fout)
+
+    def load_game_from_file(self, name='game1'):
+        proper_path = './worlds/' + name + '.wld'
+        with open(proper_path, 'rb') as fin:
+            self.field, self.stats = pickle.load(fin)
+
+    @staticmethod
+    def save_agent_to_file(agent, name='agent1'):
+        proper_path = './agents/' + name + '.agn'
+        with open(proper_path, 'wb') as fout:
+            pickle.dump(agent, fout)
+
+    @staticmethod
+    def load_agent_from_file(name='agent1'):
+        proper_path = './agents/' + name + '.agn'
+        with open(proper_path, 'rb') as fin:
+            return pickle.load(fin)
 
 
 def print_map(g):
