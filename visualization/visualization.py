@@ -114,7 +114,6 @@ def draw_settings(background, screen, settings=True):
     while settings:
 
         background.blit(screen, (0, 0))
-        screen.blit(gr_surf, (170, 40))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu = False
@@ -346,11 +345,12 @@ while life:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
+                    #g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
+
                     print('Agent born')
 
-                    draw_fake_agent(g.field.agents[x][y], map_surf, eng)
-                    pygame.display.update()
+                    #draw_fake_agent(g.field.agents[x][y], map_surf, eng)
+                    #pygame.display.update()
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.agents[x][y] is not None:
