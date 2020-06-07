@@ -189,16 +189,12 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-        print('dead')
-        print(target_pos)
         if self.agents[target_pos[0]][target_pos[1]].energy < 0:
-            print('because energy < 0')
             self.q.remove(target_pos)
             self.agents[target_pos[0]][target_pos[1]] = None
             return
 
         self.agents[target_pos[0]][target_pos[1]].alive = False
-        ('because someone kills him')
 
         return self.agents[target_pos[0]][target_pos[1]].energy
 
