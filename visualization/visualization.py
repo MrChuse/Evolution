@@ -1,4 +1,4 @@
-from core.game import Game, print_map
+from core.game import Game
 from draw_utils import *
 import sys
 
@@ -290,7 +290,7 @@ while life:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'random')
+                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
                     print('Agent born')
 
                     draw_fake_agent(g.field.agents[x][y], map_surf, eng)
