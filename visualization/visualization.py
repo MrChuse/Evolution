@@ -197,14 +197,16 @@ def draw_cell(cell, surface, i, j, temp=False):
     pygame.draw.rect(surface,
                      (cell_color_map[cell.get_cell_type()]) if not temp else temperature_to_color(cell.get_temperature()),
                      (x, y, CELL_SIZE, CELL_SIZE))
-    if cell.is_food_here():
-        draw_food(cell, surface, i, j)
+    draw_food(cell, surface, i, j)
 
 
 def draw_food(cell, surface, i, j):
     x, y = cell_position(i, j, CELL_SIZE)
-    pygame.draw.rect(surface, (food_color_map[cell.get_cell_type()]), (x, y, max(CELL_SIZE//5, 2), max(CELL_SIZE//5, 2)))
-
+    s = max(CELL_SIZE//5, 2)
+    if cell.is_minerals_here():
+        pygame.draw.rect(surface, (food_color_map[cell.get_cell_type()]), (x, y, s, s))
+    if cell.is_meat_here():
+        pygame.draw.rect(surface, (0, 0, 255), (x + CELL_SIZE - s, y + CELL_SIZE - s, s, s))
 
 def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
     x, y = cell_position(agent.pos[0], agent.pos[1], CELL_SIZE)
@@ -213,10 +215,10 @@ def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
     else:
         x += max(CELL_SIZE // 5 + 1, 2)
         y += max(CELL_SIZE // 5 + 1, 2)
-        if CELL_SIZE > 10:
-            pygame.draw.rect(surface, (0, 0, 0), (x-2, y-2, CELL_SIZE // 5*3 + 4, CELL_SIZE // 5*3 + 4), 1)
-        pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x-1, y-1, CELL_SIZE//5*3 + 2,
+        pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x, y, CELL_SIZE//5*3 + 2,
                                                                                                 CELL_SIZE//5*3 + 2))
+        if CELL_SIZE > 10:
+            pygame.draw.rect(surface, (0, 0, 0), (x, y, CELL_SIZE//5*3 + 2, CELL_SIZE//5*3 + 2), 1)
 
 
 def draw_grid(width, surface):

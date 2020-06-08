@@ -47,16 +47,16 @@ def energy_to_color(en):
 
 
 cell_color_map = {4: ROCK,
-                  3: SAND,
+                  0: SAND,
                   2: GRASS,
                   1: LEAVES,
-                  0: WATER}
+                  3: WATER}
 
 food_color_map = {4: WHEAT,
-                  3: CACTUS,
+                  0: CACTUS,
                   2: FLOWER,
                   1: APPLE,
-                  0: FISH}
+                  3: FISH}
 
 
 class Button:
