@@ -47,11 +47,12 @@ class Game:
         bots_energy = 0
         sum_brain_size = 0
         max_brain_size = -1
-
+        print(len(self.field.q))
         for index, pos in enumerate(self.field.q):
             agent = self.field.agents[pos[0]][pos[1]]
 
             if agent is None:
+                self.field.q.remove(pos)
                 continue
 
             if not agent.alive:
