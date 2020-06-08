@@ -1,4 +1,5 @@
 from core.field import Field
+from core.baseCommands import base_commands
 
 import copy
 import time
@@ -26,15 +27,8 @@ class Game:
         self.stats = []
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
-        photosynthesis = (0, True)  # id = 0
-        move = (2, True)  # id = 1
-        eat = (3, True)  # id = 2
-        give_birth_to = (3, True)  # id = 3
-        share_energy = (3, True)  # id = 4
-        unconditional_jump = (1, False, lambda x, y: y[1])
-        commands = [photosynthesis, move, eat, give_birth_to, share_energy, unconditional_jump]
         command_limit = 10
-        brain_settings = (commands, command_limit, data)
+        brain_settings = (base_commands, command_limit, data)
         self.base_brain_settings = brain_settings
 
         self.base_mutation_settings = self.MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
