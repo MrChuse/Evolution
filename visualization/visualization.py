@@ -15,10 +15,6 @@ g = Game()
 k = g.field.width
 n = g.field.height
 
-g.field.spawn_agent((0, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((k - 1, n - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((0, n - 1), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
-g.field.spawn_agent((k - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
 
 CELL_SIZE = min(MAPW//k, MAPH//n)
 
@@ -48,13 +44,13 @@ def draw_start_menu(background, screen, menu=True):
     setmapw_inputbox = InputBox(170, 100, 100, 40)
     setmaph_inputbox = InputBox(280, 100, 100, 40)
     setseed_button = Button(40, 160, 120, 40, text='seed')
-    uploadfield_button = Button(40, 220, 120, 40, text='upload field')
+    uploadgame_button = Button(40, 220, 120, 40, text='upload field')
     # imagine that we need to input a text object to generate a field, than to print it after clicking the button
-    uploadfield_inputbox = InputBox(170, 220, 240, 40)
+    uploadgame_inputbox = InputBox(170, 220, 240, 40)
     sound_button = Button(40, 280, 120, 40, text='sound')
 
-    buttons = [start_button, setsize_button, setseed_button, uploadfield_button, sound_button]
-    inputs = [uploadfield_inputbox, setmapw_inputbox, setmaph_inputbox]
+    buttons = [start_button, setsize_button, setseed_button, uploadgame_button, sound_button]
+    inputs = [uploadgame_inputbox, setmapw_inputbox, setmaph_inputbox]
 
     screen.fill(WHITE)
 
@@ -73,8 +69,9 @@ def draw_start_menu(background, screen, menu=True):
                 sys.exit()
             if start_button.clicked(event):
                 menu = False
-            if uploadfield_button.clicked(event):
-                uploadfield_inputbox.unlock()
+            if uploadgame_button.clicked(event):
+                global g
+                g.load_game_from_file(uploadgame_inputbox.text)
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
@@ -98,33 +95,26 @@ def draw_start_menu(background, screen, menu=True):
 
 
 def draw_settings(background, screen, settings=True):
-    save_field_button = Button(40, 40, 120, 40, text='Save field')
-    gr_surf = pygame.Surface((MAPW, MAPH))
-    gr_surf.fill(WHITE)
-    upload_field_button = Button(40, 90, 120, 40, text='Upload field')
-    save_population_button = Button(40, 140, 120, 40, text='Save agents')
-    upload_population_button = Button(40, 190, 120, 40, text='Upload agents')
+    save_world_button = Button(40, 40, 120, 40, text='Save field')
+    save_world_inputbox = InputBox(170, 40, 120, 40)
+    upload_world_button = Button(40, 90, 120, 40, text='Upload field')
+    save_agent_button = Button(40, 140, 120, 40, text='Save agents')
+    upload_agent_button = Button(40, 190, 120, 40, text='Upload agents')
     change_seed_button = Button(40, 240, 120, 40, text='Change seed')
-    continue_button = Button(40, 290, 120, 40, text='Continue')
+    continue_button = Button(40, H - 70, 120, 40, text='Continue')
 
-    buttons = [save_field_button, upload_field_button, save_population_button, upload_population_button,
+    buttons = [save_world_button, upload_world_button, save_agent_button, upload_agent_button,
                change_seed_button, continue_button]
-    global g
-    num_graphic = Graphic(0, 0, 380, 140, g.stats.num_agents, auto=True)
-    eng_graphic = Graphic(0, 150, 380, 140, g.stats.bots_energy, auto=True)
-    graphics = [num_graphic, eng_graphic]
 
-    for gr in graphics:
-        if len(gr.points) > 0:
-            gr.draw(gr_surf)
-
+    input_boxes = [save_world_inputbox]
     for button in buttons:
         button.draw(screen)
+    for box in input_boxes:
+        box.draw(screen)
 
     while settings:
 
         background.blit(screen, (0, 0))
-        screen.blit(gr_surf, (170, 40))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu = False
@@ -132,10 +122,73 @@ def draw_settings(background, screen, settings=True):
                 sys.exit()
             if continue_button.clicked(event):
                 settings = False
+            for box in input_boxes:
+                box.input(event)
+                box.draw(screen)
+            if save_world_button.clicked(event):
+                global g
+                g.save_game_to_file(save_world_inputbox.text)
 
         pygame.display.update()
 
     scr.fill(WHITE)
+
+def draw_statistics(background, screen, statistics=True):
+    num_agents_button = Button(40, 40, 120, 40, text='num_agents')
+    gr_surf = pygame.Surface((MAPW, MAPH))
+    gr_surf.fill(WHITE)
+    bots_energy_button = Button(40, 90, 120, 40, text='bots_energy')
+    env_energy_button = Button(40, 140, 120, 40, text='env_energy')
+    total_energy_button = Button(40, 190, 120, 40, text='total_energy')
+    avg_brain_button = Button(40, 240, 120, 40, text='avg_brain_len')
+    max_brain_button = Button(40, 290, 120, 40, text='max_brain_len')
+
+    continue_button = Button(40, H - 70, 120, 40, text='Continue')
+
+    gr_buttons = [num_agents_button, bots_energy_button, env_energy_button, total_energy_button,
+               avg_brain_button, max_brain_button]
+    buttons = [continue_button]
+
+    global g
+    gr_1= Graphic(0, 0, 380, 140, [getattr(tick, 'num_agents') for tick in g.stats], name='num_agents', auto=True)
+    gr_2 = Graphic(0, 200, 380, 140, [getattr(tick, 'bots_energy') for tick in g.stats], name='bots_energy', auto=True)
+    graphics = [gr_1, gr_2]
+
+    for gr in graphics:
+        gr.draw(gr_surf)
+
+    for button in buttons:
+        button.draw(screen)
+
+    for button in gr_buttons:
+        button.draw(screen)
+
+    while statistics:
+
+        background.blit(screen, (0, 0))
+        screen.blit(gr_surf, (170, 40))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                statistics = False
+                pygame.quit()
+                sys.exit()
+            if continue_button.clicked(event):
+                statistics = False
+            for button in gr_buttons:
+                if button.clicked(event) and len(g.stats)>2:
+                    gr_surf.fill(WHITE)
+                    graphics[0] = graphics[1]
+                    graphics[0].rect.move_ip(0, -200)
+                    graphics[0].data_update([getattr(tick, graphics[1].name) for tick in g.stats])
+                    graphics[1] = Graphic(0, 200, 380, 140, [getattr(tick, button.text) for tick in g.stats],
+                                          name=button.text, auto=True)
+                    for gr in graphics:
+                        gr.draw(gr_surf)
+
+        pygame.display.update()
+
+    scr.fill(WHITE)
+
 
 
 def draw_cell(cell, surface, i, j, temp=False):
@@ -150,7 +203,7 @@ def draw_cell(cell, surface, i, j, temp=False):
 
 def draw_food(cell, surface, i, j):
     x, y = cell_position(i, j, CELL_SIZE)
-    pygame.draw.rect(surface, (food_color_map[cell.get_cell_type]), (x, y, max(CELL_SIZE//5, 2), max(CELL_SIZE//5, 2)))
+    pygame.draw.rect(surface, (food_color_map[cell.get_cell_type()]), (x, y, max(CELL_SIZE//5, 2), max(CELL_SIZE//5, 2)))
 
 
 def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
@@ -204,18 +257,20 @@ eng = False
 god = False
 simple = False
 
-temp_button = Button(30 + MAPW, 10, 120, 40, text='Temperature', state=temp)
-eng_button = Button(30 + MAPW, 60, 120, 40, text='Energy', state=eng)
+temp_button = Button(30 + MAPW, 10, 55, 40, text='Temp', state=temp)
+eng_button = Button(90 + MAPW, 10, 55, 40, text='Eng', state=eng)
+god_mode_button = Button(30 + MAPW, 60, 120, 40, text='GOD MODE', state=god)
 slowdown_button = Button(30 + MAPW, 110, 40, 40, text='<<<')
 pause_button = Button(75 + MAPW, 110, 30, 40, text=' ||')
 speedup_button = Button(110 + MAPW, 110, 40, 40, text='>>>')
-god_mode_button = Button(30 + MAPW, 160, 120, 40, text='GOD MODE', state=god)
+statistics_button = Button(30 + MAPW, 160, 120, 40, text='Statistics')
 #  god kills agents and spawns them
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
+
 simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
 
 buttons = [temp_button, eng_button, slowdown_button, pause_button, speedup_button,
-           god_mode_button, settings_button, simple_button]
+           god_mode_button, settings_button, simple_button, statistics_button]
 for b in buttons:
     b.draw(scr)
 
@@ -283,6 +338,18 @@ while life:
                 for b in buttons:
                     b.draw(scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+            if statistics_button.clicked(event):
+                map_surf.fill(WHITE)
+                scr.fill(WHITE)
+                draw_statistics(background, scr)
+                for b in buttons:
+                    b.draw(scr)
+                draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+            if info_block:
+                if info_block.button.clicked(event):
+
+                    info_block.draw(scr)
+
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
 
@@ -290,11 +357,14 @@ while life:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
+                    #g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
+                    g.field.spawn_agent((x,y), g.base_brain_settings, brain_type='interpreter')
+
                     print('Agent born')
 
                     draw_fake_agent(g.field.agents[x][y], map_surf, eng)
                     pygame.display.update()
+
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.agents[x][y] is not None:

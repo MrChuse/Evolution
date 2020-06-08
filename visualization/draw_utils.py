@@ -142,6 +142,7 @@ class InfoBox:
                       'maxEng: ' + str(agent.energy_cap),
                       'Brn: ' + str(agent.name),
                       'Rad: ' + str(agent.radius)]
+        self.button = Button(x + 5, y + h - 40, w - 10, 35, text='Save')
         self.stats_surfaces = []
         for stat in self.stats:
             self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 14).render(stat, True, (0, 0, 0)))
@@ -155,12 +156,14 @@ class InfoBox:
         for k, surf in enumerate(self.stats_surfaces):
             surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
+        self.button.draw(screen)
         pygame.draw.rect(screen, self.color, self.rect, 2)
 
 
 class Graphic:
     def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
         self.rect = pygame.Rect(x, y, w, h)
+        self.name=name
         self.max = 1024
         self.min = 0
         self.step = 1
@@ -169,7 +172,7 @@ class Graphic:
         self.points = [[i*w//len(data) + x, y + h - data[i]*h//self.max] for i in range(0, len(data), self.step)]
 
     def data_update(self, data):
-        self.points = [[i * self.rect.w // self.step + self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
+        self.points = [[i * self.rect.w // len(data)+ self.rect.x, self.rect.y + self.rect.h - data[i] * self.rect.h // self.max]
                        for i in range(0, len(data), self.step)]
 
     def set_max(self, m):
@@ -191,22 +194,13 @@ class Graphic:
             self.data_update(data)
         pygame.draw.rect(scr, WHITE, self.rect)
         pygame.draw.rect(scr, BLACK, self.rect, 2)
-        pygame.draw.aalines(scr, RED, False, self.points, 3)
+        if len(self.points) > 2:
+            pygame.draw.aalines(scr, RED, False, self.points, 3)
         num = pygame.font.SysFont('bahnschrift', 12)
         max = num.render(str(self.max - 10), 0, (0, 0, 0))
         min = num.render(str(self.min + 10), 0, (0, 0, 0))
         scr.blit(max, (self.rect.x + self.rect.w + 5, self.rect.y))
         scr.blit(min, (self.rect.x + self.rect.w + 5, self.rect.y + self.rect.h - 12))
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if len(self.name) > 0:
+            name = num.render(self.name, 0, (0, 0, 255))
+            scr.blit(name, (self.rect.x, self.rect.y + self.rect.h + 2))
