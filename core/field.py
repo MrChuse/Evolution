@@ -213,7 +213,7 @@ class Field:
         if abs(agent.pos[0] - new_pos[0]) > agent.radius or abs(agent.pos[1] - new_pos[1]) > agent.radius:
             return agent.pos
 
-        if self.is_occupied(new_pos):
+        if self.field[new_pos[0]][new_pos[1]].is_occupied():
             return agent.pos
 
         agent.energy -= 8 * max(abs(agent.pos[0] - new_pos[0]), abs(agent.pos[1] - new_pos[1]))
@@ -240,7 +240,7 @@ class Field:
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             return
 
-        if not self.is_occupied(target_pos):
+        if not self.field[target_pos[0]][target_pos[1]].is_occupied():
             agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_mineral(), agent.energy_cap)
         else:
             if not self.agents[target_pos[0]][target_pos[1]].alive:
