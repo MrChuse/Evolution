@@ -103,12 +103,12 @@ class InterpreterBrain(BaseBrain):
         """
 
         self.counter_limit = 0
-        #execute commands until the limit is reached
+        # execute commands until the limit is reached
         while self.counter_limit < self.command_limit:
             current_command_id = self.data[self.pointer]
             if current_command_id >= len(self.commands):
-                self.pointer += 1      #if command is invalid, move the pointer,
-                self.counter_limit += 1  #update the counter, proceed to the next command
+                self.pointer += 1      # if command is invalid, move the pointer,
+                self.counter_limit += 1  # update the counter, proceed to the next command
                 continue
 
             left_data = self.pointer  # calculate
@@ -117,20 +117,16 @@ class InterpreterBrain(BaseBrain):
             if left_data >= right_data:  # check for the overlap
                 command_and_arguments = self.data[left_data:] + self.data[:right_data]
             else:
-                command_and_arguments = self.data[left_data : right_data]
+                command_and_arguments = self.data[left_data: right_data]
 
             if self.commands[current_command_id][1] is True:  # if the command is final
                 self.pointer = right_data
                 return command_and_arguments  # return action and its arguments
             else:
                 try:
-                    # print(type(self.pointer),self.pointer.value, 'in the else, try')
                     self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
-                    # print(type(self.pointer),self.pointer.value, 'in the else, after try')
                 except Exception:
-                    # print(type(self.pointer),self.pointer.value, 'in the except')
                     self.pointer += 1
-                    # print(type(self.pointer),self.pointer.value, 'in the except 2')
                     continue
                 finally:
                     self.counter_limit += 1
