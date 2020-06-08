@@ -266,23 +266,22 @@ class Field:
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             return
 
-        is_occupied = self.is_occupied(target_pos)
-        is_food_here = self.field[target_pos[0]][target_pos[1]].is_food_here()
-        amount_of_meat = self.field[target_pos[0]][target_pos[1]].get_amount_of_meat()
-        amount_of_minerals = self.field[target_pos[0]][target_pos[1]].get_amount_of_minerals()
-        temperature = self.field[target_pos[0]][target_pos[1]].get_temperature()
-
-        return is_occupied, is_food_here, amount_of_meat, amount_of_minerals, temperature
+        return self.field[target_pos[0]][target_pos[1]]
 
     def get_sensor_data(self, agent):
-        sensor_data = []
-        for di in range(-agent.radius, agent.radius + 1):
-            for dj in range(-agent.radius, agent.radius + 1):
-                if (agent.pos[0] + di) < 0 or (agent.pos[0] + di) >= self.width:
-                    continue
-                if (agent.pos[1] + dj) < 0 or (agent.pos[1] + dj) >= self.height:
-                    continue
-                sensor_data.append(self.get_info(agent, (agent.pos[0] + di, agent.pos[1] + dj)))
+        sensor_data = [self.get_info(agent, agent.pos)]
+        for r in range(1, agent.radius + 1):
+            for d in range(2 * r):
+                for di, dj in ((-r+d, -r), (r, -r+d), (r-d, r), (-r, r-d)):
+                    if agent.radius == 2:
+                        print(di, dj, 'didj')
+                    if ((agent.pos[0] + di) < 0 or (agent.pos[0] + di) >= self.width or
+                            (agent.pos[1] + dj) < 0 or (agent.pos[1] + dj) >= self.height):
+                        sensor_data.append(None)
+                        continue
+                    sensor_data.append(self.get_info(agent, (agent.pos[0] + di, agent.pos[1] + dj)))
+        print(agent.radius, len(sensor_data))
+        return sensor_data
 
     def give_birth_to(self, agent, target_pos, energy, brain_settings, mutation_settings):
         if agent.energy < energy:
