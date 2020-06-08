@@ -74,7 +74,8 @@ def draw_start_menu(background, screen, menu=True):
             if start_button.clicked(event):
                 menu = False
             if uploadgame_button.clicked(event):
-                uploadgame_inputbox.unlock()
+                global g
+                g.load_game_from_file(uploadgame_inputbox.text)
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
@@ -144,11 +145,12 @@ def draw_statistics(background, screen, statistics=True):
     env_energy_button = Button(40, 140, 120, 40, text='env_energy')
     total_energy_button = Button(40, 190, 120, 40, text='total_energy')
     avg_brain_button = Button(40, 240, 120, 40, text='avg_brain_len')
+    max_brain_button = Button(40, 290, 120, 40, text='max_brain_len')
 
     continue_button = Button(40, H - 70, 120, 40, text='Continue')
 
     gr_buttons = [num_agents_button, bots_energy_button, env_energy_button, total_energy_button,
-               avg_brain_button]
+               avg_brain_button, max_brain_button]
     buttons = [continue_button]
 
     global g
@@ -356,17 +358,22 @@ while life:
                     print('Agent removed')
                 else:
                     #g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
+                    g.field.spawn_agent((x,y), g.base_brain_settings, brain_type='interpreter')
 
                     print('Agent born')
 
-                    #draw_fake_agent(g.field.agents[x][y], map_surf, eng)
-                    #pygame.display.update()
+                    draw_fake_agent(g.field.agents[x][y], map_surf, eng)
+                    pygame.display.update()
+
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.agents[x][y] is not None:
                     info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
 
     if info_block:
+        for event in pygame.event.get():
+            if info_block.button.clicked(event):
+                pass
         info_block.draw(scr)
 
     if not pause:

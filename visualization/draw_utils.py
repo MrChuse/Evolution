@@ -142,6 +142,7 @@ class InfoBox:
                       'maxEng: ' + str(agent.energy_cap),
                       'Brn: ' + str(agent.name),
                       'Rad: ' + str(agent.radius)]
+        self.button = Button(x + 5, y + h - 40, w - 10, 35, text='Save')
         self.stats_surfaces = []
         for stat in self.stats:
             self.stats_surfaces.append(pygame.font.SysFont('bahnschrift', 14).render(stat, True, (0, 0, 0)))
@@ -155,6 +156,7 @@ class InfoBox:
         for k, surf in enumerate(self.stats_surfaces):
             surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
+        self.button.draw(screen)
         pygame.draw.rect(screen, self.color, self.rect, 2)
 
 
