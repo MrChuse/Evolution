@@ -280,7 +280,6 @@ class Field:
                         sensor_data.append(None)
                         continue
                     sensor_data.append(self.get_info(agent, (agent.pos[0] + di, agent.pos[1] + dj)))
-        print(agent.radius, len(sensor_data))
         return sensor_data
 
     def give_birth_to(self, agent, target_pos, energy, brain_settings, mutation_settings):
