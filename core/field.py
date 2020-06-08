@@ -28,8 +28,8 @@ class CellType:
         self.meat = meat
         self.minerals = minerals
         self.temperature = temperature
-        self.meat_energy_value = 12 - temperature // 8
-        self.mineral_energy_value = temperature // 15 + 1
+        self.meat_energy_value = 8 - (self.temperature - 1) // 8
+        self.mineral_energy_value = (self.temperature - 1) // 8 + 8
 
 
 class Cell:
@@ -63,6 +63,7 @@ class Cell:
     def __init__(self, cell_type=0, agent=None):
         self.cell_type = CellType(cell_type)
         self.agent = agent
+        self.photosyn_nrg = self.cell_type.temperature // 12 + 5
 
     def is_food_here(self):
         return self.cell_type.meat > 0 | self.cell_type.minerals > 0
@@ -157,10 +158,9 @@ class Field:
         based on the temperature of the cell on which it's located
     """
 
-    def __init__(self, width=21, height=21, photosyn_nrg=8):
+    def __init__(self, width=49, height=49):
         self.width = width
         self.height = height
-        self.photosyn_nrg = photosyn_nrg
         self.q = []
 
         self.agents = []
@@ -170,7 +170,7 @@ class Field:
             self.field.append([])
             for j in range(height):
                 c = Cell()
-                c.cell_type.temperature = -int(j / height * 64) + 64
+                c.cell_type.temperature = - (j / self.height * 128) + 64
                 self.field[i].append(c)
                 self.agents[i].append(None)
 
@@ -223,7 +223,7 @@ class Field:
         return agent.pos
 
     def photosyn(self, agent):
-        agent.energy = min(agent.energy_cap, (agent.energy + self.photosyn_nrg))
+        agent.energy = min(agent.energy_cap, (agent.energy + self.field[agent.pos[0]][agent.pos[1]].photosyn_nrg))
 
     def eat(self, agent, target_pos, index):
         if agent.pos == target_pos:
@@ -242,11 +242,15 @@ class Field:
             agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_mineral(), agent.energy_cap)
         else:
             if not self.agents[target_pos[0]][target_pos[1]].alive:
+                print(agent, agent.pos)
+                print(target_pos)
+                print(self.agents[target_pos[0]][target_pos[1]])
                 agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_meat(), agent.energy_cap)
 
             if agent.brain.check_ally(self.agents[target_pos[0]][target_pos[1]], 2):
                 return
 
+            agent.energy -= 4
             received_energy = self.kill_agent(target_pos)
             self.field[target_pos[0]][target_pos[1]].add_meat(received_energy // 8)
 
@@ -304,7 +308,7 @@ class Field:
             return
 
         t = self.field[agent.pos[0]][agent.pos[1]].get_temperature()
-        agent.energy -= (abs(t) // 8 + 1)
+        agent.energy -= abs(t) // 10
 
     def brain_size_effect(self, agent):
         if not agent.alive:

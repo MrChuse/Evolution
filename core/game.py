@@ -23,7 +23,7 @@ class Game:
         self.base_brain_settings = brain_settings
         self.base_mutation_settings = MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
                                                        change_gene_probability=0.2, gene_max=64)
-        self.field.spawn_agent((self.field.width // 2, self.field.height - 1),
+        self.field.spawn_agent((self.field.width // 2, self.field.height // 2),
                                self.base_brain_settings, brain_type='interpreter')
 
         # self.max_energy_cap = -1
