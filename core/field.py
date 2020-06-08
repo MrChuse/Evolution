@@ -79,14 +79,14 @@ class Cell:
 
     def get_meat(self):
         if not self.is_meat_here():
-            return
+            return 0
 
         self.cell_type.meat -= 1
         return self.cell_type.meat_energy_value
 
     def get_mineral(self):
         if not self.is_minerals_here():
-            return
+            return 0
 
         self.cell_type.minerals -= 1
         return self.cell_type.mineral_energy_value

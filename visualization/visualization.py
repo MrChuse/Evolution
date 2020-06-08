@@ -234,7 +234,8 @@ def draw_field(agent_list, agent_matrix, cell_matrix, surface, temp=False, eng=F
         surface.fill(WHITE)
         draw_grid(1, surface)
         for agent in agent_list:
-            draw_fake_agent(agent_matrix[agent[0]][agent[1]], surface, eng, True)
+            if agent_matrix[agent[0]][agent[1]] is not None:
+                draw_fake_agent(agent_matrix[agent[0]][agent[1]], surface, eng, True)
     else:
         for i, line in enumerate(cell_matrix):
             for j, cell in enumerate(line):
