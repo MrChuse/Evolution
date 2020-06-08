@@ -273,8 +273,6 @@ class Field:
         for r in range(1, agent.radius + 1):
             for d in range(2 * r):
                 for di, dj in ((-r+d, -r), (r, -r+d), (r-d, r), (-r, r-d)):
-                    if agent.radius == 2:
-                        print(di, dj, 'didj')
                     if ((agent.pos[0] + di) < 0 or (agent.pos[0] + di) >= self.width or
                             (agent.pos[1] + dj) < 0 or (agent.pos[1] + dj) >= self.height):
                         sensor_data.append(None)
@@ -292,7 +290,7 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-        if self.is_occupied(target_pos):
+        if self.field[target_pos[0]][target_pos[1]].is_occupied():
             return
 
         self.spawn_agent(target_pos, brain_settings, energy)
