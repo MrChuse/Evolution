@@ -64,6 +64,9 @@ class Cell:
         self.cell_type = CellType(cell_type)
         self.agent = agent
         self.photosyn_nrg = self.cell_type.temperature // 12 + 5
+        
+    def is_occupied(self):
+        return self.agent is not None
 
     def is_food_here(self):
         return self.cell_type.meat > 0 | self.cell_type.minerals > 0
@@ -199,9 +202,6 @@ class Field:
         self.agents[target_pos[0]][target_pos[1]].alive = False
 
         return self.agents[target_pos[0]][target_pos[1]].energy
-
-    def is_occupied(self, target_pos):
-        return self.agents[target_pos[0]][target_pos[1]] is not None
 
     def make_a_move(self, agent, new_pos, index):
         if new_pos[0] < 0 or new_pos[0] >= self.width:
