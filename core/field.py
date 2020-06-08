@@ -159,7 +159,7 @@ class Field:
     """
 
     
-    def __init__(self, width=48, height=48, photosyn_nrg=8, seed=None):
+    def __init__(self, width=48, height=48, seed=None):
         self.width = width
         self.height = height
         self.q = []

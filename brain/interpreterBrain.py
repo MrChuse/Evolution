@@ -173,7 +173,7 @@ class InterpreterBrain(BaseBrain):
         returns True if brains are very similar
         """
         d = 0
-        for index in range(len(self.data)):
+        for index in range(min(len(self.data), len(other.brain.data))):
             if self.data[index] != other.brain.data[index]:
                 d += 1
         return d <= param
