@@ -28,7 +28,7 @@ class Game:
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
         photosynthesis = (0, True)  # id = 0
         move = (2, True)  # id = 1
-        eat = (2, True)  # id = 2
+        eat = (3, True)  # id = 2
         give_birth_to = (3, True)  # id = 3
         share_energy = (3, True)  # id = 4
         unconditional_jump = (1, False, lambda x, y: y[1])
@@ -36,16 +36,19 @@ class Game:
         command_limit = 10
         brain_settings = (commands, command_limit, data)
         self.base_brain_settings = brain_settings
+
         self.base_mutation_settings = self.MutationSettings(0.1, 0.1, 0.1, number_of_brain_changes=3,
                                                             change_gene_probability=0.2, gene_max=64,
                                                             change_brain_size_probability=0.2,
                                                             max_brain_size_change=2)
-        self.field.spawn_agent((self.field.width // 2, self.field.height - 1),
+        
+        self.field.spawn_agent((self.field.width // 2, self.field.height // 2),
                                self.base_brain_settings, brain_type='interpreter')
 
         # self.max_energy_cap = -1
 
     def update(self):
+        self.field.add_minerals()
         total_bots = 0
         bots_energy = 0
         sum_brain_size = 0
@@ -53,9 +56,16 @@ class Game:
 
         for index, pos in enumerate(self.field.q):
             agent = self.field.agents[pos[0]][pos[1]]
+
             if agent is None:
                 continue
 
+            if not agent.alive:
+                if not self.field.field[pos[0]][pos[1]].is_meat_here():
+                    self.field.q.remove(pos)
+                    self.field.agents[pos[0]][pos[1]] = None
+                continue
+              
             # stats
             total_bots += 1
             bots_energy += agent.energy
@@ -138,10 +148,12 @@ def print_map(g):
 def print_energy_map(g):
     for row in g.field.agents:
         for element in row:
-            if element is not None:
-                print(f'%-4d' % element.energy, end=' ')
-            else:
+            if element is None:
                 print(f'%-4d' % 0, end=' ')
+            elif not element.alive:
+                print(f'%-4d' % -1, end=' ')
+            else:
+                print(f'%-4d' % element.energy, end=' ')
         print()
     print()
 
@@ -156,7 +168,7 @@ def main():
     while True:
         print_energy_map(g)
         g.update()
-        time.sleep(0.5)
+        time.sleep(0.25)
 
 
 if __name__ == '__main__':

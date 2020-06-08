@@ -111,30 +111,30 @@ class InterpreterBrain(BaseBrain):
                 self.counter_limit += 1  #update the counter, proceed to the next command
                 continue
 
-            left_data = self.pointer #calculate
+            left_data = self.pointer  # calculate
             right_data = self.pointer + self.commands[current_command_id][0] + 1
 
-            if left_data >= right_data: #check for the overlap
+            if left_data >= right_data:  # check for the overlap
                 command_and_arguments = self.data[left_data:] + self.data[:right_data]
             else:
                 command_and_arguments = self.data[left_data : right_data]
 
-            if self.commands[current_command_id][1] is True: #if the command is final
+            if self.commands[current_command_id][1] is True:  # if the command is final
                 self.pointer = right_data
-                return command_and_arguments #return action and its arguments
+                return command_and_arguments  # return action and its arguments
             else:
                 try:
-                    #print(type(self.pointer),self.pointer.value, 'in the else, try')
+                    # print(type(self.pointer),self.pointer.value, 'in the else, try')
                     self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
-                    #print(type(self.pointer),self.pointer.value, 'in the else, after try')
+                    # print(type(self.pointer),self.pointer.value, 'in the else, after try')
                 except Exception:
-                    #print(type(self.pointer),self.pointer.value, 'in the except')
+                    # print(type(self.pointer),self.pointer.value, 'in the except')
                     self.pointer += 1
-                    #print(type(self.pointer),self.pointer.value, 'in the except 2')
+                    # print(type(self.pointer),self.pointer.value, 'in the except 2')
                     continue
                 finally:
                     self.counter_limit += 1
-        return -1 #return -1 if no action was chosen
+        return -1  # return -1 if no action was chosen
 
     def mutate(self, rng, mutation_settings):
         """
@@ -173,8 +173,8 @@ class InterpreterBrain(BaseBrain):
         returns True if brains are very similar
         """
         d = 0
-        for index in range(min(len(self.data), len(other.data))):
-            if self.data[index] != self.data[index]:
+        for index in range(len(self.data)):
+            if self.data[index] != other.brain.data[index]:
                 d += 1
         return d <= param
 
