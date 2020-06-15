@@ -1,5 +1,6 @@
 from core.field import Field
 from core.baseCommands import base_commands
+from core.statistics import Statistics
 
 import copy
 import time
@@ -13,7 +14,7 @@ class Game:
             self.field = None
         else:
             self.field = Field()
-        self.Statistics = namedtuple('Statistics', 'num_agents bots_energy env_energy total_energy avg_brain_len max_brain_len')
+        self.stats = Statistics()
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
                                             'change_energy_cap_probability',
@@ -24,7 +25,6 @@ class Game:
                                             'change_brain_size_probability',
                                             'max_brain_size_change'],
                                            defaults=(None,) * 5)
-        self.stats = []
 
         data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
         command_limit = 10
@@ -105,9 +105,14 @@ class Game:
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
 
-        avg_brain_size = sum_brain_size / total_bots
+        avg_brain_size = (sum_brain_size / total_bots) if total_bots > 0 else 0
         env_energy = 0
-        self.stats.append(self.Statistics(total_bots, bots_energy, env_energy, bots_energy + env_energy, avg_brain_size, max_brain_size))
+        self.stats.add_tick(total_bots=total_bots, 
+                            bots_energy=bots_energy,
+                            env_energy=env_energy, 
+                            total_energy=bots_energy + env_energy,
+                            avg_brain_size=avg_brain_size,
+                            max_brain_size=max_brain_size)
         
     def save_game_to_file(self, name='game1'):
         proper_path = './worlds/' + name + '.wld'
