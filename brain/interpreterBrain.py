@@ -130,7 +130,7 @@ class InterpreterBrain(BaseBrain):
                     continue
                 finally:
                     self.counter_limit += 1
-        return -1  # return -1 if no action was chosen
+        return [-1]  # return -1 if no action was chosen
 
     def mutate(self, rng, mutation_settings):
         """
