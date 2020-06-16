@@ -150,8 +150,8 @@ def draw_statistics(background, screen, statistics=True):
     buttons = [continue_button]
 
     global g
-    gr_1= Graphic(0, 0, 380, 140, [getattr(tick, 'num_agents') for tick in g.stats], name='num_agents', auto=True)
-    gr_2 = Graphic(0, 200, 380, 140, [getattr(tick, 'bots_energy') for tick in g.stats], name='bots_energy', auto=True)
+    gr_1 = Graphic(0, 0, 380, 140, g.stats['num_agents'], name='num_agents', auto=True)
+    gr_2 = Graphic(0, 200, 380, 140, g.stats['bots_energy'], name='bots_energy', auto=True)
     graphics = [gr_1, gr_2]
 
     for gr in graphics:
@@ -179,8 +179,8 @@ def draw_statistics(background, screen, statistics=True):
                     gr_surf.fill(WHITE)
                     graphics[0] = graphics[1]
                     graphics[0].rect.move_ip(0, -200)
-                    graphics[0].data_update([getattr(tick, graphics[1].name) for tick in g.stats])
-                    graphics[1] = Graphic(0, 200, 380, 140, [getattr(tick, button.text) for tick in g.stats],
+                    graphics[0].data_update(g.stats[graphics[1].name])
+                    graphics[1] = Graphic(0, 200, 380, 140, g.stats[button.text],
                                           name=button.text, auto=True)
                     for gr in graphics:
                         gr.draw(gr_surf)
