@@ -46,7 +46,7 @@ class Game:
         total_bots = 0
         bots_energy = 0
         sum_brain_size = 0
-        max_brain_size = -1
+        max_brain_size = 0
         for index, pos in enumerate(self.field.q):
             agent = self.field.agents[pos[0]][pos[1]]
 
@@ -72,7 +72,8 @@ class Game:
             #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
-            if commands_and_arguments == -1:
+            # print(commands_and_arguments)
+            if commands_and_arguments[0] == -1:
                 continue
             if commands_and_arguments[0] == 0:  # id = 0 == photosyn
                 self.field.photosyn(agent)
@@ -104,10 +105,16 @@ class Game:
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
 
-        avg_brain_size = (sum_brain_size / total_bots) if total_bots > 0 else 0
+        if total_bots > 0:
+            avg_bot_energy = (bots_energy / total_bots)
+            avg_brain_size = (sum_brain_size / total_bots)
+        else:
+            avg_bot_energy = 0
+            avg_brain_size = 0
         env_energy = 0
         self.stats.add_tick(total_bots=total_bots, 
                             bots_energy=bots_energy,
+                            avg_bot_energy=avg_bot_energy,
                             env_energy=env_energy, 
                             total_energy=bots_energy + env_energy,
                             avg_brain_size=avg_brain_size,
@@ -165,9 +172,9 @@ def main():
     # g.field.spawn_agent((g.field.width - 1, 0), (((0, True), (2, True), (2, True)), 10, set()), 100, 255, 1, 'random')
 
     while True:
-        print_energy_map(g)
+        # print_energy_map(g)
         g.update()
-        time.sleep(0.25)
+        # time.sleep(0.25)
 
 
 if __name__ == '__main__':
