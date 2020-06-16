@@ -154,6 +154,14 @@ class Game:
         with open(proper_path, 'rb') as fin:
             return pickle.load(fin)
 
+    @staticmethod
+    def get_all_world_names():
+        return [i[:-4] for i in os.listdir(path="./worlds")]
+
+    @staticmethod
+    def get_all_agent_names():
+        return [i[:-4] for i in os.listdir(path="./agents")]
+
 
 def print_map(g):
     for row in g.field.agents:
