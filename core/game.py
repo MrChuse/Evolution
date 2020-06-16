@@ -5,11 +5,23 @@ from core.statistics import Statistics
 import copy
 import time
 import pickle
+import os
 from collections import namedtuple
 
 
 class Game:
     def __init__(self, empty=None):
+        # directories stuff
+        try:
+            os.mkdir('./worlds')
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir('./agents')
+        except FileExistsError:
+            pass
+
+        # game stuff
         if empty:
             self.field = None
         else:
@@ -112,13 +124,13 @@ class Game:
             avg_bot_energy = 0
             avg_brain_size = 0
         env_energy = 0
-        self.stats.add_tick(total_bots=total_bots, 
+        self.stats.add_tick(num_agents=total_bots,
                             bots_energy=bots_energy,
                             avg_bot_energy=avg_bot_energy,
                             env_energy=env_energy, 
                             total_energy=bots_energy + env_energy,
-                            avg_brain_size=avg_brain_size,
-                            max_brain_size=max_brain_size)
+                            avg_brain_len=avg_brain_size,
+                            max_brain_len=max_brain_size)
         
     def save_game_to_file(self, name='game1'):
         proper_path = './worlds/' + name + '.wld'
