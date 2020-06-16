@@ -160,7 +160,6 @@ class Field:
         a method that reduces the energy of an agent
         based on the temperature of the cell on which it's located
     """
-
     
     def __init__(self, width=48, height=48, seed=None):
         self.width = width
@@ -180,7 +179,7 @@ class Field:
 
         if seed is None:
             seed = random.randrange(sys.maxsize)
-        self.rng = random.Random(seed)  # 1297696744
+        self.rng = random.Random(seed)
         print("Seed is:", seed)
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
