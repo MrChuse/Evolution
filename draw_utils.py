@@ -94,7 +94,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = GRAY
         self.text = text
-        self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(text, True, (0, 0, 0))
+        self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(text[-10:], True, (0, 0, 0))
         self.active = True
 
     def input(self, event):
@@ -113,7 +113,7 @@ class InputBox:
                     self.text = self.text[:-1]
                 else:
                     self.text += event.unicode
-                self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(self.text, True, (0, 0, 0))
+                self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(self.text[-10:], True, (0, 0, 0))
 
     def update(self):
         width = max(200, self.txt_surface.get_width()+10)
@@ -141,7 +141,8 @@ class InfoBox:
         self.stats = ['Eng: ' + str(agent.energy),
                       'maxEng: ' + str(agent.energy_cap),
                       'Brn: ' + str(agent.name),
-                      'Rad: ' + str(agent.radius)]
+                      'Rad: ' + str(agent.radius),
+                      'Alive' if agent.alive else 'Dead']
         self.button = Button(x + 5, y + h - 40, w - 10, 35, text='Save')
         self.stats_surfaces = []
         for stat in self.stats:
@@ -152,7 +153,8 @@ class InfoBox:
         self.stats = ['Eng: ' + str(self.agent.energy),
                       'maxEng: ' + str(self.agent.energy_cap),
                       'Brn: ' + str(self.agent.name),
-                      'Rad: ' + str(self.agent.radius)]
+                      'Rad: ' + str(self.agent.radius),
+                      'Alive' if self.agent.alive else 'Dead']
         for k, surf in enumerate(self.stats_surfaces):
             surf = pygame.font.SysFont('bahnschrift', 14).render(self.stats[k], True, (0, 0, 0))
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
@@ -163,9 +165,10 @@ class InfoBox:
 class Graphic:
     def __init__(self, x, y, w, h, data, dynamic=False, name='', auto=False):
         self.rect = pygame.Rect(x, y, w, h)
-        self.name=name
+        self.name = name
         self.max = 1024
         self.min = 0
+        self.length = len(data)
         self.step = 1
         if auto and len(data) > 1:
             self.set_size_auto(data)
@@ -187,6 +190,7 @@ class Graphic:
     def set_size_auto(self, data):
         self.set_max(max(data) + 10)
         self.set_min(min(data) - 10)
+        self.length = len(data)
         self.set_step(max((len(data)//self.rect.w//30), 1))
 
     def draw(self, scr, data=None):
@@ -199,8 +203,10 @@ class Graphic:
         num = pygame.font.SysFont('bahnschrift', 12)
         max = num.render(str(self.max - 10), 0, (0, 0, 0))
         min = num.render(str(self.min + 10), 0, (0, 0, 0))
+        length = num.render(str(self.length), 0, (0, 0, 0))
         scr.blit(max, (self.rect.x + self.rect.w + 5, self.rect.y))
         scr.blit(min, (self.rect.x + self.rect.w + 5, self.rect.y + self.rect.h - 12))
+        scr.blit(length, (self.rect.x + self.rect.w - 30, self.rect.y + self.rect.h + 1))
         if len(self.name) > 0:
             name = num.render(self.name, 0, (0, 0, 255))
             scr.blit(name, (self.rect.x, self.rect.y + self.rect.h + 2))
