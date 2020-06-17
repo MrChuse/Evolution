@@ -63,11 +63,12 @@ class Cell:
 
     def __init__(self, cell_type=0, agent=None):
         self.cell_type = CellType(cell_type)
+        print(agent)
         self.agent = agent
         self.photosyn_nrg = self.cell_type.temperature // 12 + 5
         
     def is_occupied(self):
-        print('in occupied returned', self.agent is not None)
+        print('in occupied returned', self.agent)
         return self.agent is not None
 
     def is_food_here(self):
