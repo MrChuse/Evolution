@@ -254,8 +254,10 @@ def draw_field(agent_list, agent_matrix, cell_matrix, surface, temp=False, eng=F
         for i, line in enumerate(cell_matrix):
             for j, cell in enumerate(line):
                 draw_cell(cell, surface, i, j, temp)
-                if g.field.agents[i][j] is not None:
-                    draw_fake_agent(g.field.agents[i][j], surface, eng, False)
+                # if g.field.agents[i][j] is not None:
+                if g.field.field[i][j].agent is not None:
+                    # draw_fake_agent(g.field.agents[i][j], surface, eng, False)
+                    draw_fake_agent(g.field.field[i][j].agent, surface, eng, False)
 
 
 pygame.init()
@@ -378,7 +380,8 @@ while life:
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
 
-                if g.field.agents[x][y] is not None:
+                # if g.field.agents[x][y] is not None:
+                if g.field.field[x][y].agent is not None:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
@@ -386,13 +389,16 @@ while life:
 
                     print('Agent born')
 
-                    draw_fake_agent(g.field.agents[x][y], map_surf, eng)
+                    # draw_fake_agent(g.field.agents[x][y], map_surf, eng)
+                    draw_fake_agent(g.field.field[x][y].agent, map_surf, eng)
                     pygame.display.update()
 
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
-                if g.field.agents[x][y] is not None:
-                    info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
+                # if g.field.agents[x][y] is not None:
+                if g.field.field[x][y].agent is not None:
+                    # info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
+                    info_block = InfoBox(g.field.field[x][y].agent, 30 + MAPW, 260, 120, 150)
 
     if info_block:
         info_block.draw(scr)

@@ -65,7 +65,8 @@ class Game:
                 print(pos, 'FOUND MULTIPLE, ABORTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 print(self.field.q)
                 exit()
-            agent = self.field.agents[pos[0]][pos[1]]
+            # agent = self.field.agents[pos[0]][pos[1]]
+            agent = self.field.field[pos[0]][pos[1]].agent
 
             if agent is None:
                 self.field.q.remove(pos)
@@ -74,7 +75,8 @@ class Game:
             if not agent.alive:
                 if not self.field.field[pos[0]][pos[1]].is_meat_here():
                     self.field.q.remove(pos)
-                    self.field.agents[pos[0]][pos[1]] = None
+                    # self.field.agents[pos[0]][pos[1]] = None
+                    self.field.field[pos[0]][pos[1]].agent = None
                 continue
               
             # stats
