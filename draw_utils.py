@@ -94,7 +94,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = GRAY
         self.text = text
-        self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(text, True, (0, 0, 0))
+        self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(text[-10:], True, (0, 0, 0))
         self.active = True
 
     def input(self, event):
@@ -113,7 +113,7 @@ class InputBox:
                     self.text = self.text[:-1]
                 else:
                     self.text += event.unicode
-                self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(self.text, True, (0, 0, 0))
+                self.txt_surface = pygame.font.SysFont('bahnschrift', 18).render(self.text[-10:], True, (0, 0, 0))
 
     def update(self):
         width = max(200, self.txt_surface.get_width()+10)

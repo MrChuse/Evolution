@@ -187,7 +187,7 @@ def draw_statistics(background, screen, statistics=True):
                 statistics = False
                 pygame.quit()
                 sys.exit()
-            if continue_button.clicked(event):
+            elif continue_button.clicked(event):
                 statistics = False
             for button in gr_buttons:
                 if button.clicked(event) and len(g.stats)>2:
@@ -275,21 +275,22 @@ temp = False
 eng = False
 god = False
 simple = False
+gfx = True
 
 temp_button = Button(30 + MAPW, 10, 55, 40, text='Temp', state=temp)
-eng_button = Button(90 + MAPW, 10, 55, 40, text='Eng', state=eng)
-god_mode_button = Button(30 + MAPW, 60, 120, 40, text='GOD MODE', state=god)
+eng_button = Button(95 + MAPW, 10, 55, 40, text='Eng', state=eng)
+god_mode_button = Button(30 + MAPW, 60, 55, 40, text='GOD', state=god)
+gfx_button = Button(95 + MAPW, 60, 55, 40, state=gfx, text='GFX')
 slowdown_button = Button(30 + MAPW, 110, 40, 40, text='<<<')
 pause_button = Button(75 + MAPW, 110, 30, 40, text=' ||')
 speedup_button = Button(110 + MAPW, 110, 40, 40, text='>>>')
 statistics_button = Button(30 + MAPW, 160, 120, 40, text='Statistics')
 #  god kills agents and spawns them
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
-
 simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
 
 buttons = [temp_button, eng_button, slowdown_button, pause_button, speedup_button,
-           god_mode_button, settings_button, simple_button, statistics_button]
+           god_mode_button, settings_button, simple_button, statistics_button, gfx_button]
 for b in buttons:
     b.draw(scr)
 
@@ -317,16 +318,16 @@ while life:
                 temp = not temp
                 temp_button.draw(scr)
 
-            if eng_button.clicked(event):
+            elif eng_button.clicked(event):
                 eng = not eng
                 eng_button.draw(scr)
 
-            if simple_button.clicked(event):
+            elif simple_button.clicked(event):
                 simple = not simple
                 simple_button.draw(scr)
 
             # speed manipulations
-            if slowdown_button.clicked(event):
+            elif slowdown_button.clicked(event):
                 if FREQUENCY > 15:
                     FREQUENCY = FREQUENCY / 2
                     if not speedup_button.state:
@@ -335,7 +336,7 @@ while life:
                 else:
                     slowdown_button.lock()
                     slowdown_button.draw(scr)
-            if speedup_button.clicked(event):
+            elif speedup_button.clicked(event):
                 if FREQUENCY < 2400:
                     FREQUENCY = FREQUENCY * 2
                     if not slowdown_button.state:
@@ -344,26 +345,35 @@ while life:
                 else:
                     speedup_button.lock()
                     speedup_button.draw(scr)
-            if pause_button.clicked(event):
+            elif pause_button.clicked(event):
                 pause = not pause
                 pause_button.draw(scr)
-            if god_mode_button.clicked(event):
+            elif god_mode_button.clicked(event):
                 god = not god
                 god_mode_button.draw(scr)
-            if settings_button.clicked(event):
+            elif settings_button.clicked(event):
                 map_surf.fill(WHITE)
                 scr.fill(WHITE)
                 draw_settings(background, scr)
                 for b in buttons:
                     b.draw(scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
-            if statistics_button.clicked(event):
+            elif statistics_button.clicked(event):
                 map_surf.fill(WHITE)
                 scr.fill(WHITE)
                 draw_statistics(background, scr)
                 for b in buttons:
                     b.draw(scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+            elif gfx_button.clicked(event):
+                gfx = not gfx
+                gfx_button.draw(scr)
+                if gfx:
+                    pygame.draw.rect(scr, WHITE, (10, MAPH + 11, 60, 14))
+                else:
+                    gfx_srf = pygame.font.SysFont('bahnschrift', 14)
+                    gfx_msg = gfx_srf.render('GFX OFF', 0, (255, 0, 0))
+                    scr.blit(gfx_msg, (10, MAPH + 11))
 
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
@@ -384,7 +394,6 @@ while life:
                 if g.field.agents[x][y] is not None:
                     info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
 
-
     if info_block:
         info_block.draw(scr)
 
@@ -392,5 +401,6 @@ while life:
         g.update()
 
     clock.tick(FREQUENCY)
-    draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+    if gfx:
+        draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
     pygame.display.update()
