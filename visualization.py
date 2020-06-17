@@ -38,6 +38,7 @@ def cell_position(i, j, size):
 
 
 def draw_start_menu(background, screen, menu=True):
+    global g
     start_button = Button(40, 40, 120, 40, text='Start')
     setsize_button = Button(40, 100, 120, 40, text='Set size')
     setsize_button.lock()
@@ -46,11 +47,11 @@ def draw_start_menu(background, screen, menu=True):
     setseed_button = Button(40, 160, 120, 40, text='seed')
     uploadgame_button = Button(40, 220, 120, 40, text='upload field')
     # imagine that we need to input a text object to generate a field, than to print it after clicking the button
-    uploadgame_inputbox = InputBox(170, 220, 240, 40)
+    worlds = [Button(170 + j*70, 220, 60, 40, text=name, state=False) for j, name in enumerate(g.get_all_world_names())]
     sound_button = Button(40, 280, 120, 40, text='sound')
 
     buttons = [start_button, setsize_button, setseed_button, uploadgame_button, sound_button]
-    inputs = [uploadgame_inputbox, setmapw_inputbox, setmaph_inputbox]
+    inputs = [setmapw_inputbox, setmaph_inputbox]
 
     screen.fill(WHITE)
 
@@ -70,8 +71,12 @@ def draw_start_menu(background, screen, menu=True):
             if start_button.clicked(event):
                 menu = False
             if uploadgame_button.clicked(event):
-                global g
-                g.load_game_from_file(uploadgame_inputbox.text)
+                for w in worlds:
+                    w.unlock()
+                    w.draw(scr)
+            for w in worlds:
+                if w.state and w.clicked(event):
+                    g.load_game_from_file(w.text)
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
