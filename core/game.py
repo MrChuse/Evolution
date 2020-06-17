@@ -38,7 +38,7 @@ class Game:
                                             'max_brain_size_change'],
                                            defaults=(None,) * 5)
 
-        data = [0] * 12 + [3, 1, 0, 32] + [0] * 12 + [3, 0, 1, 32] + [0] * 12 + [3, 1, 2, 32] + [0] * 12 + [3, 2, 1, 32]
+        data = [0] * 4 + [3, 1, 0, 32] + [0] * 4 + [3, 0, 1, 32] + [0] * 4 + [3, 1, 2, 32] + [0] * 4 + [3, 2, 1, 32]
         command_limit = 10
         brain_settings = (base_commands, command_limit, data)
         self.base_brain_settings = brain_settings
