@@ -6,6 +6,9 @@ class ModuloInteger:
     def __new__(cls, value, modulo):
         return object.__new__(cls)
 
+    def __getnewargs__(self):
+        return self.value, self.modulo
+
     def __init__(self, value, modulo):
         self.value = value
         self.modulo = modulo
