@@ -68,7 +68,6 @@ class Cell:
         self.photosyn_nrg = self.cell_type.temperature // 12 + 5
         
     def is_occupied(self):
-        print('in occupied returned', self.agent)
         return self.agent is not None
 
     def is_food_here(self):
@@ -230,9 +229,7 @@ class Field:
         agent.pos = new_pos
         # self.agents[new_pos[0]][new_pos[1]] = agent
         self.field[new_pos[0]][new_pos[1]].agent = agent
-        print(self.q)
         self.q[index] = new_pos
-        print(self.q)
 
         return agent.pos
 
@@ -307,7 +304,6 @@ class Field:
         if self.field[target_pos[0]][target_pos[1]].is_occupied():
             return
 
-        print('agent has enough energy, target pos is in bounds and field is not occupied', target_pos)
         self.spawn_agent(target_pos, brain_settings, energy)
         agent.energy -= energy
 
