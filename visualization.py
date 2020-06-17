@@ -243,21 +243,18 @@ def draw_grid(width, surface):
         pygame.draw.line(surface, GRAY, (y, 0), (y, CELL_SIZE*n), width)
 
 
-def draw_field(agent_list, agent_matrix, cell_matrix, surface, temp=False, eng=False, simple=False):
+def draw_field(agent_list, cell_matrix, surface, temp=False, eng=False, simple=False):
     if simple:
         surface.fill(WHITE)
         draw_grid(1, surface)
         for agent in agent_list:
-            if agent_matrix[agent[0]][agent[1]] is not None:
-                draw_fake_agent(agent_matrix[agent[0]][agent[1]], surface, eng, True)
+            draw_fake_agent(cell_matrix[agent[0]][agent[1]].agent, surface, eng, True)
     else:
         for i, line in enumerate(cell_matrix):
             for j, cell in enumerate(line):
                 draw_cell(cell, surface, i, j, temp)
-                # if g.field.agents[i][j] is not None:
-                if g.field.field[i][j].agent is not None:
-                    # draw_fake_agent(g.field.agents[i][j], surface, eng, False)
-                    draw_fake_agent(g.field.field[i][j].agent, surface, eng, False)
+                if cell.agent is not None:
+                    draw_fake_agent(cell.agent, surface, eng, False)
 
 
 pygame.init()
@@ -298,7 +295,7 @@ for b in buttons:
 
 info_block = None
 
-draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
 clock = pygame.time.Clock()
 
 life = True
@@ -359,14 +356,14 @@ while life:
                 draw_settings(background, scr)
                 for b in buttons:
                     b.draw(scr)
-                draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+                draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
             elif statistics_button.clicked(event):
                 map_surf.fill(WHITE)
                 scr.fill(WHITE)
                 draw_statistics(background, scr)
                 for b in buttons:
                     b.draw(scr)
-                draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+                draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
             elif gfx_button.clicked(event):
                 gfx = not gfx
                 gfx_button.draw(scr)
@@ -380,24 +377,18 @@ while life:
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
 
-                # if g.field.agents[x][y] is not None:
                 if g.field.field[x][y].agent is not None:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    g.field.spawn_agent((x,y), g.base_brain_settings, brain_type='interpreter')
-
+                    g.field.spawn_agent((x, y), g.base_brain_settings, brain_type='interpreter')
                     print('Agent born')
-
-                    # draw_fake_agent(g.field.agents[x][y], map_surf, eng)
                     draw_fake_agent(g.field.field[x][y].agent, map_surf, eng)
                     pygame.display.update()
 
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
-                # if g.field.agents[x][y] is not None:
                 if g.field.field[x][y].agent is not None:
-                    # info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
                     info_block = InfoBox(g.field.field[x][y].agent, 30 + MAPW, 260, 120, 150)
 
     if info_block:
@@ -408,5 +399,5 @@ while life:
 
     clock.tick(FREQUENCY)
     if gfx:
-        draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
+        draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
     pygame.display.update()

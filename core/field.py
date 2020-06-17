@@ -1,6 +1,6 @@
 from Agent import Agent
-import random, sys
-import Noisemap
+import random,sys
+
 
 class CellType:
     """
@@ -12,7 +12,7 @@ class CellType:
         the number that specifies the type of cell (default is 0)
         0 - Base type
         (other types will be described later)
-    food : int, optional
+    food: int, optional
         the amount of food in the cell (default is 0)
         a number in range [0, 127]
     temperature : int, optional

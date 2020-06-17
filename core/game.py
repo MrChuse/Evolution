@@ -64,7 +64,6 @@ class Game:
             agent = self.field.field[pos[0]][pos[1]].agent
 
             if agent is None:
-                self.field.q.remove(pos)
                 continue
 
             if not agent.alive:
