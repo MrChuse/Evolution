@@ -25,7 +25,7 @@ class Game:
         if empty:
             self.field = None
         else:
-            self.field = Field(10, 10, 0)
+            self.field = Field()
         self.stats = Statistics()
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
