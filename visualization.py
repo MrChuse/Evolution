@@ -95,9 +95,11 @@ def draw_start_menu(background, screen, menu=True):
 
 
 def draw_settings(background, screen, settings=True):
+    global g
     save_world_button = Button(40, 40, 120, 40, text='Save field')
-    save_world_inputbox = InputBox(170, 40, 120, 40)
+    save_world_inputbox = InputBox(180, 40, 120, 40)
     upload_world_button = Button(40, 90, 120, 40, text='Upload field')
+    worlds = [Button(180 + j*70, 90, 60, 40, text=name, state=False) for j, name in enumerate(g.get_all_world_names())]
     save_agent_button = Button(40, 140, 120, 40, text='Save agents')
     upload_agent_button = Button(40, 190, 120, 40, text='Upload agents')
     change_seed_button = Button(40, 240, 120, 40, text='Change seed')
@@ -120,14 +122,22 @@ def draw_settings(background, screen, settings=True):
                 menu = False
                 pygame.quit()
                 sys.exit()
-            if continue_button.clicked(event):
+            elif continue_button.clicked(event):
                 settings = False
+            elif save_world_button.clicked(event):
+                g.save_game_to_file(save_world_inputbox.text)
+                save_world_inputbox.text = ''
+                save_world_inputbox.draw(scr)
+            elif upload_world_button.clicked(event):
+                for w in worlds:
+                    w.unlock()
+                    w.draw(scr)
+            for w in worlds:
+                if w.state and w.clicked(event):
+                    g.load_game_from_file(w.text)
             for box in input_boxes:
                 box.input(event)
                 box.draw(screen)
-            if save_world_button.clicked(event):
-                global g
-                g.save_game_to_file(save_world_inputbox.text)
 
         pygame.display.update()
 
@@ -197,7 +207,6 @@ def draw_cell(cell, surface, i, j, temp=False):
                      (cell_color_map[cell.get_cell_type()]) if not temp else temperature_to_color(cell.get_temperature()),
                      (x, y, CELL_SIZE, CELL_SIZE))
     draw_food(cell, surface, i, j)
-
 
 def draw_food(cell, surface, i, j):
     x, y = cell_position(i, j, CELL_SIZE)
@@ -350,10 +359,6 @@ while life:
                 for b in buttons:
                     b.draw(scr)
                 draw_field(g.field.q, g.field.agents, g.field.field, map_surf, temp, eng, simple)
-            if info_block:
-                if info_block.button.clicked(event):
-
-                    info_block.draw(scr)
 
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
@@ -362,7 +367,6 @@ while life:
                     g.field.kill_agent((x, y))
                     print('Agent removed')
                 else:
-                    #g.field.spawn_agent((x, y), (((0, True), (2, True), (2, True)), 10, set()), 300, 255, 1, 'interpreter')
                     g.field.spawn_agent((x,y), g.base_brain_settings, brain_type='interpreter')
 
                     print('Agent born')
@@ -374,6 +378,7 @@ while life:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.agents[x][y] is not None:
                     info_block = InfoBox(g.field.agents[x][y], 30 + MAPW, 260, 120, 150)
+
 
     if info_block:
         info_block.draw(scr)
