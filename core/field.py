@@ -1,5 +1,6 @@
 from Agent import Agent
 import random, sys
+import Noisemap
 
 class CellType:
     """
@@ -62,6 +63,7 @@ class Cell:
 
     def __init__(self, cell_type=0, agent=None):
         self.cell_type = CellType(cell_type)
+        print(agent)
         self.agent = agent
         self.photosyn_nrg = self.cell_type.temperature // 12 + 5
         
@@ -168,6 +170,7 @@ class Field:
 
         self.agents = []
         self.field = []
+        # temperature = Noisemap.Mapgen(max(width, height), 1)
         for i in range(width):
             self.agents.append([])
             self.field.append([])
@@ -183,7 +186,8 @@ class Field:
         print("Seed is:", seed)
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
-        self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
+        # self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
+        self.field[pos[0]][pos[1]].agent = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
         self.q.append(pos)
 
     def kill_agent(self, target_pos):
@@ -193,14 +197,18 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-        if self.agents[target_pos[0]][target_pos[1]].energy < 0:
+        # if self.agents[target_pos[0]][target_pos[1]].energy < 0:
+        if self.field[target_pos[0]][target_pos[1]].agent.energy < 0:
             self.q.remove(target_pos)
-            self.agents[target_pos[0]][target_pos[1]] = None
+            # self.agents[target_pos[0]][target_pos[1]] = None
+            self.field[target_pos[0]][target_pos[1]].agent = None
             return
 
-        self.agents[target_pos[0]][target_pos[1]].alive = False
+        # self.agents[target_pos[0]][target_pos[1]].alive = False
+        self.field[target_pos[0]][target_pos[1]].agent.alive = False
 
-        return self.agents[target_pos[0]][target_pos[1]].energy
+        # return self.agents[target_pos[0]][target_pos[1]].energy
+        return self.field[target_pos[0]][target_pos[1]].agent.energy
 
     def make_a_move(self, agent, new_pos, index):
         if new_pos[0] < 0 or new_pos[0] >= self.width:
@@ -216,9 +224,11 @@ class Field:
             return agent.pos
 
         agent.energy -= 8 * max(abs(agent.pos[0] - new_pos[0]), abs(agent.pos[1] - new_pos[1]))
-        self.agents[agent.pos[0]][agent.pos[1]] = None
+        # self.agents[agent.pos[0]][agent.pos[1]] = None
+        self.field[agent.pos[0]][agent.pos[1]].agent = None
         agent.pos = new_pos
-        self.agents[new_pos[0]][new_pos[1]] = agent
+        # self.agents[new_pos[0]][new_pos[1]] = agent
+        self.field[new_pos[0]][new_pos[1]].agent = agent
         self.q[index] = new_pos
 
         return agent.pos
@@ -242,13 +252,15 @@ class Field:
         if not self.field[target_pos[0]][target_pos[1]].is_occupied():
             agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_mineral(), agent.energy_cap)
         else:
-            if not self.agents[target_pos[0]][target_pos[1]].alive:
-                print(agent, agent.pos)
-                print(target_pos)
-                print(self.agents[target_pos[0]][target_pos[1]])
+            # if not self.agents[target_pos[0]][target_pos[1]].alive:
+            if not self.field[target_pos[0]][target_pos[1]].agent.alive:
+                # print(agent, agent.pos)
+                # print(target_pos)
+                # print(self.agents[target_pos[0]][target_pos[1]])
                 agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_meat(), agent.energy_cap)
 
-            if agent.brain.check_ally(self.agents[target_pos[0]][target_pos[1]], 2):
+            # if agent.brain.check_ally(self.agents[target_pos[0]][target_pos[1]], 2):
+            if agent.brain.check_ally(self.field[target_pos[0]][target_pos[1]].agent, 2):
                 return
 
             agent.energy -= 4
@@ -295,7 +307,8 @@ class Field:
         self.spawn_agent(target_pos, brain_settings, energy)
         agent.energy -= energy
 
-        self.agents[target_pos[0]][target_pos[1]].mutate(self.rng, mutation_settings)
+        # self.agents[target_pos[0]][target_pos[1]].mutate(self.rng, mutation_settings)
+        self.field[target_pos[0]][target_pos[1]].agent.mutate(self.rng, mutation_settings)
 
     def do_nothing(self):
         pass
@@ -327,14 +340,16 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-        if self.agents[target_pos[0]][target_pos[1]] is None:
+        # if self.agents[target_pos[0]][target_pos[1]] is None:
+        if self.field[target_pos[0]][target_pos[1]].agent is None:
             return
 
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             return
 
         agent.energy -= amount_of_energy
-        target_agent = self.agents[target_pos[0]][target_pos[1]]
+        # target_agent = self.agents[target_pos[0]][target_pos[1]]
+        target_agent = self.field[target_pos[0]][target_pos[1]].agent
         target_agent.energy = min(255, target_agent.energy + amount_of_energy)
 
     def add_minerals(self):

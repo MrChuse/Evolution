@@ -25,7 +25,7 @@ class Game:
         if empty:
             self.field = None
         else:
-            self.field = Field()
+            self.field = Field(10, 10, 0)
         self.stats = Statistics()
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
@@ -60,7 +60,8 @@ class Game:
         sum_brain_size = 0
         max_brain_size = 0
         for index, pos in enumerate(self.field.q):
-            agent = self.field.agents[pos[0]][pos[1]]
+            # agent = self.field.agents[pos[0]][pos[1]]
+            agent = self.field.field[pos[0]][pos[1]].agent
 
             if agent is None:
                 self.field.q.remove(pos)
@@ -69,7 +70,8 @@ class Game:
             if not agent.alive:
                 if not self.field.field[pos[0]][pos[1]].is_meat_here():
                     self.field.q.remove(pos)
-                    self.field.agents[pos[0]][pos[1]] = None
+                    # self.field.agents[pos[0]][pos[1]] = None
+                    self.field.field[pos[0]][pos[1]].agent = None
                 continue
               
             # stats
@@ -84,7 +86,6 @@ class Game:
             #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
-            # print(commands_and_arguments)
             if commands_and_arguments[0] == -1:
                 continue
             if commands_and_arguments[0] == 0:  # id = 0 == photosyn
@@ -124,6 +125,8 @@ class Game:
             avg_bot_energy = 0
             avg_brain_size = 0
         env_energy = 0
+        # if total_bots > 2304:
+            # print(total_bots, len(self.field.q))
         self.stats.add_tick(num_agents=total_bots,
                             bots_energy=bots_energy,
                             avg_bot_energy=avg_bot_energy,
