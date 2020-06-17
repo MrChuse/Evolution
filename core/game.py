@@ -25,7 +25,7 @@ class Game:
         if empty:
             self.field = None
         else:
-            self.field = Field()
+            self.field = Field(10, 10, 0)
         self.stats = Statistics()
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
@@ -54,12 +54,17 @@ class Game:
         # self.max_energy_cap = -1
 
     def update(self):
+        print(self.field.q)
         self.field.add_minerals()
         total_bots = 0
         bots_energy = 0
         sum_brain_size = 0
         max_brain_size = 0
         for index, pos in enumerate(self.field.q):
+            if self.field.q.count(pos) > 1:
+                print(pos, 'FOUND MULTIPLE, ABORTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print(self.field.q)
+                exit()
             agent = self.field.agents[pos[0]][pos[1]]
 
             if agent is None:
@@ -84,7 +89,7 @@ class Game:
             #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
-            # print(commands_and_arguments)
+            print('Bot', index, 'tried', commands_and_arguments)
             if commands_and_arguments[0] == -1:
                 continue
             if commands_and_arguments[0] == 0:  # id = 0 == photosyn
@@ -102,6 +107,7 @@ class Game:
                 dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
                 child_energy = agent.energy * commands_and_arguments[3] // 64 + 1
                 brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
+                print('in birth', pos, 'wants to', (agent.pos[0] + dx, agent.pos[1] + dy))
                 self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy),
                                          child_energy, brain_settings, self.base_mutation_settings)
             elif commands_and_arguments[0] == 4:  # id = 4 == share_energy
@@ -115,6 +121,7 @@ class Game:
             self.field.temperature_effect(agent)
             self.field.brain_size_effect(agent)
             if agent.energy < 0:
+                print('killed agent', index, pos)
                 self.field.kill_agent(agent.pos)
 
         if total_bots > 0:
@@ -124,6 +131,8 @@ class Game:
             avg_bot_energy = 0
             avg_brain_size = 0
         env_energy = 0
+        if total_bots > 2304:
+            print(total_bots, len(self.field.q))
         self.stats.add_tick(num_agents=total_bots,
                             bots_energy=bots_energy,
                             avg_bot_energy=avg_bot_energy,
@@ -131,6 +140,7 @@ class Game:
                             total_energy=bots_energy + env_energy,
                             avg_brain_len=avg_brain_size,
                             max_brain_len=max_brain_size)
+        print(self.field.q, 'after')
         
     def save_game_to_file(self, name='game1'):
         proper_path = './worlds/' + name + '.wld'
