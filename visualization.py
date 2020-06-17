@@ -26,7 +26,7 @@ def set_screen_size(background, scr, mapw, maph):
     background = pygame.display.set_mode((W, H))
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
-    print("SIZE SET", H,":",W)
+    print("SIZE SET", H, ":", W)
     #draw_start_menu(background, scr)
 
 
@@ -74,6 +74,12 @@ def draw_start_menu(background, screen, menu=True):
             for w in worlds:
                 if w.state and w.clicked(event):
                     g.load_game_from_file(w.text)
+                    set_screen_size(background, screen, MAPW, MAPH)
+                    background.fill(WHITE)
+                    for button in buttons:
+                        button.draw(screen)
+                    for box in inputs:
+                        box.draw(screen)
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
@@ -141,6 +147,12 @@ def draw_settings(background, screen, settings=True):
             for w in worlds:
                 if w.state and w.clicked(event):
                     g.load_game_from_file(w.text)
+                    set_screen_size(background, screen, MAPW, MAPH)
+                    for button in buttons:
+                        button.draw(screen)
+                    for box in input_boxes:
+                        box.draw(screen)
+
             for box in input_boxes:
                 box.input(event)
                 box.draw(screen)
@@ -426,8 +438,7 @@ while life:
                 else:
                     g.field.spawn_agent((x, y), g.base_brain_settings, brain_type='interpreter')
                     print('Agent born')
-                    draw_agent(g.field.field[x][y].agent, map_surf, eng)
-                    pygame.display.update()
+                    draw_agent(g.field.field[x][y].agent, action_surf, eng)
 
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
