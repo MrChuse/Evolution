@@ -1,6 +1,6 @@
 from Agent import Agent
 import random, sys
-import Noisemap
+# import Noisemap
 
 class CellType:
     """
