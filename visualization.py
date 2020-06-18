@@ -222,7 +222,6 @@ def draw_cell(cell, surface, i, j, temp=False):
     pygame.draw.rect(surface,
                      (cell_color_map[cell.get_cell_type()]) if not temp else temperature_to_color(cell.get_temperature()),
                      (x, y, CELL_SIZE, CELL_SIZE))
-    # draw_food(cell, surface, i, j)
 
 
 def draw_foods(cell_matrix, surface):
@@ -238,20 +237,6 @@ def draw_foods(cell_matrix, surface):
                 surface.blit(min_surf, (x, y))
             if cell.is_meat_here():
                 surface.blit(meat_surf, (x + CELL_SIZE - s, y + CELL_SIZE - s))
-
-
-def draw_food(cell, surface, i, j):
-    x, y = cell_position(i, j, CELL_SIZE)
-    s = max(CELL_SIZE//5,2)
-    if cell.is_minerals_here():
-        min_surf = pygame.Surface((s, s))
-        min_surf.fill(food_color_map[cell.get_cell_type()])
-        surface.blit(min_surf, (x, y))
-
-    if cell.is_meat_here():
-        meat_surf = pygame.Surface((s, s))
-        meat_surf.fill((0, 0, 255))
-        surface.blit(meat_surf, (x + CELL_SIZE - s, y + CELL_SIZE - s))
 
 
 def draw_agent(agent, surface, energy_mode=False, simple=False):
