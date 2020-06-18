@@ -41,13 +41,12 @@ def draw_start_menu(background, screen, menu=True):
     setsize_button.lock()
     setmapw_inputbox = InputBox(170, 100, 100, 40)
     setmaph_inputbox = InputBox(280, 100, 100, 40)
-    setseed_button = Button(40, 160, 120, 40, text='seed')
-    uploadgame_button = Button(40, 220, 120, 40, text='upload field')
+    uploadgame_button = Button(40, 160, 120, 40, text='upload field')
     # imagine that we need to input a text object to generate a field, than to print it after clicking the button
     worlds = [Button(170 + j*70, 220, 60, 40, text=name, state=False) for j, name in enumerate(g.get_all_world_names())]
-    sound_button = Button(40, 280, 120, 40, text='sound')
+    sound_button = Button(40, 220, 120, 40, text='sound')
 
-    buttons = [start_button, setsize_button, setseed_button, uploadgame_button, sound_button]
+    buttons = [start_button, setsize_button, uploadgame_button, sound_button]
     inputs = [setmapw_inputbox, setmaph_inputbox]
 
     screen.fill(WHITE)
@@ -112,13 +111,10 @@ def draw_settings(background, screen, settings=True):
     save_world_inputbox = InputBox(180, 40, 120, 40)
     upload_world_button = Button(40, 90, 120, 40, text='Upload field')
     worlds = [Button(180 + j*70, 90, 60, 40, text=name, state=False) for j, name in enumerate(g.get_all_world_names())]
-    save_agent_button = Button(40, 140, 120, 40, text='Save agents')
-    upload_agent_button = Button(40, 190, 120, 40, text='Upload agents')
-    change_seed_button = Button(40, 240, 120, 40, text='Change seed')
+    #change_seed_button = Button(40, 240, 120, 40, text='Change seed')
     continue_button = Button(40, H - 70, 120, 40, text='Continue')
 
-    buttons = [save_world_button, upload_world_button, save_agent_button, upload_agent_button,
-               change_seed_button, continue_button]
+    buttons = [save_world_button, upload_world_button, continue_button]
 
     input_boxes = [save_world_inputbox]
     for button in buttons:
@@ -243,14 +239,14 @@ def draw_agent(agent, surface, energy_mode=False, simple=False):
     x, y = cell_position(agent.pos[0], agent.pos[1], CELL_SIZE)
     if simple:
         agent_surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
-        agent_surf.fill(energy_to_color(agent.energy) if energy_mode else CACTUS if agent.alive else (0, 0, 0))
+        agent_surf.fill((0, 0, 0) if not agent.alive else energy_to_color(agent.energy) if energy_mode else CACTUS)
         surface.blit(agent_surf, (x,y))
     else:
         x += max(CELL_SIZE // 5, 2)
         y += max(CELL_SIZE // 5, 2)
         s = CELL_SIZE - 2 * max(CELL_SIZE // 5, 2)
         agent_surf = pygame.Surface((s, s))
-        agent_surf.fill(energy_to_color(agent.energy) if energy_mode else WHITE if agent.alive else (0, 0, 0))
+        agent_surf.fill((0, 0, 0) if not agent.alive else energy_to_color(agent.energy) if energy_mode else WHITE)
         if CELL_SIZE > 10 or not energy_mode:
             pygame.draw.rect(agent_surf, (0, 0, 0), (0, 0, s, s), 1)
         surface.blit(agent_surf, (x, y))

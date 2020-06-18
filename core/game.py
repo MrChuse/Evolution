@@ -115,6 +115,7 @@ class Game:
             # stats
             total_bots += 1
             bots_energy += agent.energy
+            bots_energy += agent.energy
             brain_size = agent.get_brain_size()
             sum_brain_size += brain_size
             if brain_size > max_brain_size:
