@@ -340,15 +340,6 @@ while life:
     if not pause:
         g.update()
 
-    if gfx:
-        action_surf.blit(map_surf, (0, 0))
-        draw_population(g.field.q, g.field.field, action_surf, eng, simple)
-        if not simple:
-            draw_foods(g.field.field, action_surf)
-
-    background.blit(scr, (0, 0))
-    background.blit(action_surf, (10, 10))
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             life = False
@@ -444,6 +435,17 @@ while life:
                 if g.field.field[x][y].agent is not None:
                     info_block = InfoBox(g.field.field[x][y].agent, 30 + MAPW, 260, 120, 150)
                     brain_data = BrainData(g.field.field[x][y].agent, MAPW - 250, MAPH + 10)
+
+    if gfx:
+        if temp and not simple:
+            draw_field(g.field.field, map_surf, temp=True, simple=False)
+        action_surf.blit(map_surf, (0, 0))
+        draw_population(g.field.q, g.field.field, action_surf, eng, simple)
+        if not simple:
+            draw_foods(g.field.field, action_surf)
+
+    background.blit(scr, (0, 0))
+    background.blit(action_surf, (10, 10))
 
     if info_block:
         info_block.draw(scr)
