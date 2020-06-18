@@ -11,11 +11,8 @@ W = MAPW + 200
 H = MAPH + 40
 
 g = Game()
-
 k = g.field.width
 n = g.field.height
-
-
 CELL_SIZE = min(MAPW//k, MAPH//n)
 
 
@@ -29,8 +26,8 @@ def set_screen_size(background, scr, mapw, maph):
     background = pygame.display.set_mode((W, H))
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
-    print("SIZE SET", H,":",W)
-    draw_start_menu(background, scr)
+    print("SIZE SET", H, ":", W)
+    #draw_start_menu(background, scr)
 
 
 def cell_position(i, j, size):
@@ -77,11 +74,21 @@ def draw_start_menu(background, screen, menu=True):
             for w in worlds:
                 if w.state and w.clicked(event):
                     g.load_game_from_file(w.text)
+                    set_screen_size(background, screen, MAPW, MAPH)
+                    background.fill(WHITE)
+                    for button in buttons:
+                        button.draw(screen)
+                    for box in inputs:
+                        box.draw(screen)
             if setsize_button.state and setsize_button.clicked(event):
                 if 300 < int(setmapw_inputbox.text) < 1000 and \
                    300 < int(setmaph_inputbox.text) < 1000:
                     set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
-
+                    background.fill(WHITE)
+                    for button in buttons:
+                        button.draw(screen)
+                    for box in inputs:
+                        box.draw(screen)
             for box in inputs:
                 box.input(event)
                 box.draw(screen)
@@ -140,6 +147,9 @@ def draw_settings(background, screen, settings=True):
             for w in worlds:
                 if w.state and w.clicked(event):
                     g.load_game_from_file(w.text)
+                    set_screen_size(background, screen, MAPW, MAPH)
+                    settings = False
+
             for box in input_boxes:
                 box.input(event)
                 box.draw(screen)
@@ -147,6 +157,7 @@ def draw_settings(background, screen, settings=True):
         pygame.display.update()
 
     scr.fill(WHITE)
+
 
 def draw_statistics(background, screen, statistics=True):
     num_agents_button = Button(40, 40, 120, 40, text='num_agents')
@@ -211,29 +222,43 @@ def draw_cell(cell, surface, i, j, temp=False):
     pygame.draw.rect(surface,
                      (cell_color_map[cell.get_cell_type()]) if not temp else temperature_to_color(cell.get_temperature()),
                      (x, y, CELL_SIZE, CELL_SIZE))
-    draw_food(cell, surface, i, j)
-
-def draw_food(cell, surface, i, j):
-    x, y = cell_position(i, j, CELL_SIZE)
-    s = max(CELL_SIZE//5,2)
-    if cell.is_minerals_here():
-        pygame.draw.rect(surface, (food_color_map[cell.get_cell_type()]), (x, y, s, s))
-    if cell.is_meat_here():
-        pygame.draw.rect(surface, (0, 0, 255), (x + CELL_SIZE - s, y + CELL_SIZE - s, s, s))
 
 
-def draw_fake_agent(agent, surface, energy_mode=False, simple=False):
+def draw_foods(cell_matrix, surface):
+    s = max(CELL_SIZE // 5, 2)
+    min_surf = pygame.Surface((s, s))
+    min_surf.fill(CACTUS)
+    meat_surf = pygame.Surface((s, s))
+    meat_surf.fill((0, 0, 255))
+    for i, line in enumerate(cell_matrix):
+        for j, cell in enumerate(line):
+            x, y = cell_position(i, j, CELL_SIZE)
+            if cell.is_minerals_here():
+                surface.blit(min_surf, (x, y))
+            if cell.is_meat_here():
+                surface.blit(meat_surf, (x + CELL_SIZE - s, y + CELL_SIZE - s))
+
+
+def draw_agent(agent, surface, energy_mode=False, simple=False):
     x, y = cell_position(agent.pos[0], agent.pos[1], CELL_SIZE)
     if simple:
-        pygame.draw.rect(surface, CACTUS if not energy_mode else energy_to_color(agent.energy), (x, y, CELL_SIZE, CELL_SIZE))
+        agent_surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
+        agent_surf.fill(CACTUS if not energy_mode else energy_to_color(agent.energy))
+        surface.blit(agent_surf, (x,y))
     else:
-
-        x += max(CELL_SIZE//5,2)
-        y += max(CELL_SIZE//5,2)
-        s = CELL_SIZE - 2*max(CELL_SIZE//5,2)
-        pygame.draw.rect(surface, WHITE if not energy_mode else energy_to_color(agent.energy), (x, y, s, s))
+        x += max(CELL_SIZE // 5, 2)
+        y += max(CELL_SIZE // 5, 2)
+        s = CELL_SIZE - 2 * max(CELL_SIZE // 5, 2)
+        agent_surf = pygame.Surface((s, s))
+        agent_surf.fill(WHITE if not energy_mode else energy_to_color(agent.energy))
         if CELL_SIZE > 10 or not energy_mode:
-            pygame.draw.rect(surface, (0, 0, 0), (x, y, s, s), 1)
+            pygame.draw.rect(agent_surf, (0, 0, 0), (0, 0, s, s), 1)
+        surface.blit(agent_surf, (x, y))
+
+
+def draw_population(agent_list, cell_matrix, surface, eng, simple):
+    for agent in agent_list:
+        draw_agent(cell_matrix[agent[0]][agent[1]].agent, surface, eng, simple)
 
 
 def draw_grid(width, surface):
@@ -243,18 +268,14 @@ def draw_grid(width, surface):
         pygame.draw.line(surface, GRAY, (y, 0), (y, CELL_SIZE*n), width)
 
 
-def draw_field(agent_list, cell_matrix, surface, temp=False, eng=False, simple=False):
+def draw_field(cell_matrix, surface, temp=False, simple=False):
     if simple:
         surface.fill(WHITE)
         draw_grid(1, surface)
-        for agent in agent_list:
-            draw_fake_agent(cell_matrix[agent[0]][agent[1]].agent, surface, eng, True)
     else:
         for i, line in enumerate(cell_matrix):
             for j, cell in enumerate(line):
                 draw_cell(cell, surface, i, j, temp)
-                if cell.agent is not None:
-                    draw_fake_agent(cell.agent, surface, eng, False)
 
 
 pygame.init()
@@ -267,8 +288,9 @@ scr.fill(WHITE)
 draw_start_menu(background, scr)
 scr = pygame.Surface((W, H))
 scr.fill(WHITE)
-map_surf = pygame.Surface((MAPW + 1, MAPH + 1))
+map_surf = pygame.Surface((MAPW, MAPH))
 map_surf.fill((255, 255, 255))
+action_surf = pygame.Surface((MAPW, MAPH))
 
 temp = False
 eng = False
@@ -286,25 +308,37 @@ speedup_button = Button(110 + MAPW, 110, 40, 40, text='>>>')
 statistics_button = Button(30 + MAPW, 160, 120, 40, text='Statistics')
 #  god kills agents and spawns them
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
-simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
+simple_button = Button(30 + MAPW, H - 60, 75, 40, state=simple, text='Simple!')
+restart_button = Button(110 + MAPW, H - 60, 45, 40, state=simple, text='RST')
 
 buttons = [temp_button, eng_button, slowdown_button, pause_button, speedup_button,
-           god_mode_button, settings_button, simple_button, statistics_button, gfx_button]
+           god_mode_button, settings_button, simple_button, statistics_button, gfx_button, restart_button]
 for b in buttons:
     b.draw(scr)
 
 info_block = None
 brain_data = None
 
-draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
+draw_field(g.field.field, map_surf, temp, simple)
 clock = pygame.time.Clock()
 
 life = True
 pause = True
 
+
 while life:
+
+    if not pause:
+        g.update()
+
+    if gfx:
+        action_surf.blit(map_surf, (0, 0))
+        draw_population(g.field.q, g.field.field, action_surf, eng, simple)
+        if not simple:
+            draw_foods(g.field.field, map_surf)
+
     background.blit(scr, (0, 0))
-    background.blit(map_surf, (10, 10))
+    background.blit(action_surf, (10, 10))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -316,16 +350,19 @@ while life:
             # visualization modes
             if temp_button.clicked(event):
                 temp = not temp
+                draw_field(g.field.field, map_surf, temp, simple)
                 temp_button.draw(scr)
-
             elif eng_button.clicked(event):
                 eng = not eng
+                draw_field(g.field.field, map_surf, temp, simple)
                 eng_button.draw(scr)
-
             elif simple_button.clicked(event):
                 simple = not simple
+                draw_field(g.field.field, map_surf, temp, simple)
                 simple_button.draw(scr)
-
+            elif restart_button.clicked(event):
+                g = Game()
+                draw_field(g.field.field, map_surf, temp, simple)
             # speed manipulations
             elif slowdown_button.clicked(event):
                 if FREQUENCY > 15:
@@ -357,14 +394,14 @@ while life:
                 draw_settings(background, scr)
                 for b in buttons:
                     b.draw(scr)
-                draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
+                draw_field(g.field.field, map_surf, temp, simple)
             elif statistics_button.clicked(event):
                 map_surf.fill(WHITE)
                 scr.fill(WHITE)
                 draw_statistics(background, scr)
                 for b in buttons:
                     b.draw(scr)
-                draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
+                draw_field(g.field.field, map_surf, temp, simple)
             elif gfx_button.clicked(event):
                 gfx = not gfx
                 gfx_button.draw(scr)
@@ -388,8 +425,7 @@ while life:
                 else:
                     g.field.spawn_agent((x, y), g.base_brain_settings, brain_type='interpreter')
                     print('Agent born')
-                    draw_fake_agent(g.field.field[x][y].agent, map_surf, eng)
-                    pygame.display.update()
+                    draw_agent(g.field.field[x][y].agent, action_surf, eng)
 
             elif 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
@@ -401,10 +437,5 @@ while life:
         info_block.draw(scr)
         brain_data.draw(scr)
 
-    if not pause:
-        g.update()
-
     clock.tick(FREQUENCY)
-    if gfx:
-        draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
     pygame.display.update()

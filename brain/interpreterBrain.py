@@ -163,7 +163,7 @@ class InterpreterBrain(BaseBrain):
                     self.data.pop(int(rng.random() * len(self.data)))
             self.pointer = ModuloInteger(0, len(self.data))
 
-    def check_ally(self, other, param):
+    def check_ally(self, other, tolerance):
         """
         other: InterpreterBrain object
             the brain to compare with
@@ -172,10 +172,10 @@ class InterpreterBrain(BaseBrain):
         returns True if brains are very similar
         """
         d = 0
-        for index in range(min(len(self.data), len(other.brain.data))):
-            if self.data[index] != other.brain.data[index]:
+        for index in range(min(len(self.data), len(other.data))):
+            if self.data[index] != other.data[index]:
                 d += 1
-        return d <= param
+        return d <= tolerance
 
     def get_brain_size(self):
         return len(self.data)
