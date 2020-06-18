@@ -1,3 +1,4 @@
 
 *.pyc
 /venv/
+/click_sound.mp3

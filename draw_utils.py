@@ -71,6 +71,8 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 self.state = not self.state
                 self.color = GRASS if self.state else GRAY
+                pygame.mixer.music.load('click_sound_short.mp3')
+                pygame.mixer.music.play()
                 return True
         return False
 
