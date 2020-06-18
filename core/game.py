@@ -66,6 +66,8 @@ class Game:
         else:
             self.field = Field()
         self.stats = Statistics()
+        self.tick = 0
+        self.move_period = 10
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
                                             'change_energy_cap_probability',
@@ -171,6 +173,9 @@ class Game:
                             total_energy=bots_energy + env_energy,
                             avg_brain_len=avg_brain_size,
                             max_brain_len=max_brain_size)
+        self.tick += 1
+        if self.tick % self.move_period == 0:
+            self.field.move_field()
 
     def save_game_to_file(self, name='game1'):
         proper_path = './worlds/' + name + '.wld'
