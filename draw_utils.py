@@ -166,14 +166,22 @@ class BrainData:
         self.rect = pygame.Rect(x, y, 250, 20)
         self.agent = agent
         p = str(agent.brain.data[agent.brain.pointer])
-        s = "|".join(map(str, agent.brain.data[agent.brain.pointer + 1: agent.brain.pointer + 10]))
+        if agent.brain.pointer > len(agent.brain.data) - 10:
+            s = "|".join(map(str, agent.brain.data[agent.brain.pointer + 1:])) +"|" \
+                +"|".join(map(str,agent.brain.data[:agent.brain.pointer + 10 - len(agent.brain.data)]))
+        else:
+            s = "|".join(map(str, agent.brain.data[agent.brain.pointer + 1: agent.brain.pointer + 10]))
         self.point = pygame.font.SysFont('bahnschrift', 14).render(p, True, (0, 0, 255))
         self.surf = pygame.font.SysFont('bahnschrift', 14).render(s, True, (0, 0, 0))
 
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)
         p = str(self.agent.brain.data[self.agent.brain.pointer])
-        s = "|".join(map(str, self.agent.brain.data[self.agent.brain.pointer + 1: self.agent.brain.pointer + 10]))
+        if self.agent.brain.pointer > len(self.agent.brain.data) - 10:
+            s = "|".join(map(str, self.agent.brain.data[self.agent.brain.pointer + 1:])) + "|" \
+                + "|".join(map(str, self.agent.brain.data[:self.agent.brain.pointer - len(self.agent.brain.data) + 10]))
+        else:
+            s = "|".join(map(str, self.agent.brain.data[self.agent.brain.pointer + 1: self.agent.brain.pointer + 10]))
         self.point = pygame.font.SysFont('bahnschrift', 14).render(p, True, (0, 0, 255))
         self.surf = pygame.font.SysFont('bahnschrift', 14).render(s, True, (0, 0, 0))
         screen.blit(self.point, (self.rect.x, self.rect.y + 3))
