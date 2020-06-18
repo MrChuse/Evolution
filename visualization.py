@@ -23,7 +23,7 @@ def set_screen_size(background, scr, mapw, maph):
     W = MAPW + 200
     H = MAPH + 40
     CELL_SIZE = min(MAPW // k, MAPH // n)
-    background = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+    background = pygame.display.set_mode((W, H))
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
     print("SIZE SET", H, ":", W)
@@ -111,12 +111,16 @@ def draw_settings(background, screen, settings=True):
     save_world_inputbox = InputBox(180, 40, 120, 40)
     upload_world_button = Button(40, 90, 120, 40, text='Upload field')
     worlds = [Button(180 + j*70, 90, 60, 40, text=name, state=False) for j, name in enumerate(g.get_all_world_names())]
-    #change_seed_button = Button(40, 240, 120, 40, text='Change seed')
+    setsize_button = Button(40, 140, 120, 40, text='Set size')
+    setsize_button.lock()
+    setmapw_inputbox = InputBox(180, 140, 100, 40)
+    setmaph_inputbox = InputBox(300, 140, 100, 40)
+    # change_seed_button = Button(40, 240, 120, 40, text='Change seed')
     continue_button = Button(40, H - 70, 120, 40, text='Continue')
 
-    buttons = [save_world_button, upload_world_button, continue_button]
+    buttons = [save_world_button, upload_world_button, setsize_button, continue_button]
 
-    input_boxes = [save_world_inputbox]
+    input_boxes = [save_world_inputbox, setmapw_inputbox, setmaph_inputbox]
     for button in buttons:
         button.draw(screen)
     for box in input_boxes:
@@ -132,6 +136,16 @@ def draw_settings(background, screen, settings=True):
                 sys.exit()
             elif continue_button.clicked(event):
                 settings = False
+            elif setsize_button.state and setsize_button.clicked(event) :
+                if 300 < int(setmapw_inputbox.text) < 1000 and \
+                   300 < int(setmaph_inputbox.text) < 1000:
+                    set_screen_size(background, screen, int(setmapw_inputbox.text), int(setmaph_inputbox.text))
+                    background.fill(WHITE)
+                    for button in buttons:
+                        button.draw(screen)
+                    for box in input_boxes:
+                        box.draw(screen)
+
             elif save_world_button.clicked(event):
                 g.save_game_to_file(save_world_inputbox.text)
                 save_world_inputbox.text = ''
@@ -145,7 +159,6 @@ def draw_settings(background, screen, settings=True):
                     g.load_game_from_file(w.text)
                     set_screen_size(background, screen, MAPW, MAPH)
                     settings = False
-
             for box in input_boxes:
                 box.input(event)
                 box.draw(screen)
@@ -276,7 +289,7 @@ def draw_field(cell_matrix, surface, temp=False, simple=False):
 
 pygame.init()
 
-background = pygame.display.set_mode((W, H), pygame.RESIZABLE)
+background = pygame.display.set_mode((W, H))
 
 scr = pygame.Surface((W, H))
 scr.fill(WHITE)
