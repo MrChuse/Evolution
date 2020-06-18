@@ -196,15 +196,19 @@ class Field:
         return 64 * t
 
     def move_field(self):
+        for index, pos in enumerate(self.q):
+            self.q[index] = pos[0] - 1, pos[1]
+            self.field[pos[0]][pos[1]].agent.pos = pos[0] - 1, pos[1]
+        for pos in reversed(self.q):
+            if pos[0] < 0:
+                self.q.remove(pos)
+
         self.field = self.field[1:]
         self.field.append([])
         for i in range(self.width):
             temperature = int(self.from_noise_to_temperature(self.noise.noise2(self.noise_x, i / self.height)))
             self.field[-1].append(Cell(temperature=temperature))
         self.noise_x += 1 / self.width
-        for index, pos in enumerate(self.q):
-            self.q[index] = pos[0] - 1, pos[1]
-            self.field[pos[0] - 1][pos[1]].agent.pos = pos[0] - 1, pos[1]
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
         self.field[pos[0]][pos[1]].agent = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
