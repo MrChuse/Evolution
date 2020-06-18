@@ -67,7 +67,7 @@ class Game:
             self.field = Field()
         self.stats = Statistics()
         self.tick = 0
-        self.move_period = 10
+        self.move_period = 50
         self.MutationSettings = namedtuple('MutationSettings',
                                            ['change_radius_probability',
                                             'change_energy_cap_probability',
