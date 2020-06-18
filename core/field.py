@@ -64,7 +64,7 @@ class Cell:
     def __init__(self, cell_type=0, temperature=0, agent=None):
         self.cell_type = CellType(cell_type, temperature=temperature)
         self.agent = agent
-        self.photosyn_nrg = self.cell_type.temperature // 12 + 8
+        self.photosyn_nrg = self.cell_type.temperature // 12 + 5
         
     def is_occupied(self):
         return self.agent is not None
