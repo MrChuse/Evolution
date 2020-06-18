@@ -317,6 +317,7 @@ for b in buttons:
     b.draw(scr)
 
 info_block = None
+brain_data = None
 
 draw_field(g.field.field, map_surf, temp, simple)
 clock = pygame.time.Clock()
@@ -409,6 +410,10 @@ while life:
                 else:
                     gfx_srf = pygame.font.SysFont('bahnschrift', 14)
                     gfx_msg = gfx_srf.render('GFX OFF', 0, (255, 0, 0))
+                    pygame.draw.rect(scr, WHITE, info_block.rect)
+                    pygame.draw.rect(scr, WHITE, brain_data.rect)
+                    info_block = None
+                    brain_data = None
                     scr.blit(gfx_msg, (10, MAPH + 11))
 
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
@@ -426,9 +431,11 @@ while life:
                 x, y = (event.pos[0] - 10) // CELL_SIZE, (event.pos[1] - 10) // CELL_SIZE
                 if g.field.field[x][y].agent is not None:
                     info_block = InfoBox(g.field.field[x][y].agent, 30 + MAPW, 260, 120, 150)
+                    brain_data = BrainData(g.field.field[x][y].agent, MAPW - 250, MAPH + 10)
 
     if info_block:
         info_block.draw(scr)
+        brain_data.draw(scr)
 
     clock.tick(FREQUENCY)
     pygame.display.update()
