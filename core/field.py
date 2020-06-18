@@ -175,6 +175,8 @@ class Field:
         self.rng = random.Random(seed)
         print("Seed is:", seed)
 
+        self.mineral_spawn_probability = 0.0001
+
         noise = perlin.SimplexNoise(randint_function=self.rng.randint)
         for i in range(width):
             self.agents.append([])
@@ -342,5 +344,5 @@ class Field:
     def add_minerals(self):
         for row in self.field:
             for cell in row:
-                if self.rng.random() < 0.0001:
+                if self.rng.random() < self.mineral_spawn_probability:
                     cell.add_mineral()
