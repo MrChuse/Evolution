@@ -344,7 +344,7 @@ while life:
         action_surf.blit(map_surf, (0, 0))
         draw_population(g.field.q, g.field.field, action_surf, eng, simple)
         if not simple:
-            draw_foods(g.field.field, map_surf)
+            draw_foods(g.field.field, action_surf)
 
     background.blit(scr, (0, 0))
     background.blit(action_surf, (10, 10))
