@@ -153,6 +153,10 @@ class Game:
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
 
+            if agent.energy > agent.energy_cap:
+                brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
+                self.field.give_birth_random(agent, brain_settings, self.base_mutation_settings)
+
         if total_bots > 0:
             avg_bot_energy = (bots_energy / total_bots)
             avg_brain_size = (sum_brain_size / total_bots)

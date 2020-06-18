@@ -165,6 +165,7 @@ class Field:
     def __init__(self, width=48, height=48, seed=None):
         self.width = width
         self.height = height
+        self.share_penalty = 0.9
         self.q = []
 
         self.agents = []
@@ -236,7 +237,7 @@ class Field:
         return agent.pos
 
     def photosyn(self, agent):
-        agent.energy = min(agent.energy_cap, (agent.energy + self.field[agent.pos[0]][agent.pos[1]].photosyn_nrg))
+        agent.energy += self.field[agent.pos[0]][agent.pos[1]].photosyn_nrg
 
     def eat(self, agent, target_pos, index):
         if agent.pos == target_pos:
@@ -252,14 +253,14 @@ class Field:
             return
 
         if not self.field[target_pos[0]][target_pos[1]].is_occupied():
-            agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_mineral(), agent.energy_cap)
+            agent.energy += self.field[target_pos[0]][target_pos[1]].get_mineral()
         else:
             # if not self.agents[target_pos[0]][target_pos[1]].alive:
             if not self.field[target_pos[0]][target_pos[1]].agent.alive:
                 # print(agent, agent.pos)
                 # print(target_pos)
                 # print(self.agents[target_pos[0]][target_pos[1]])
-                agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_meat(), agent.energy_cap)
+                agent.energy += self.field[target_pos[0]][target_pos[1]].get_meat()
 
             agent.energy -= 4
             received_energy = self.kill_agent(target_pos)
@@ -300,6 +301,7 @@ class Field:
             return
 
         if self.field[target_pos[0]][target_pos[1]].is_occupied():
+            self.kill_agent(agent.pos)
             return
 
         self.spawn_agent(target_pos, brain_settings, energy)
@@ -307,6 +309,12 @@ class Field:
 
         # self.agents[target_pos[0]][target_pos[1]].mutate(self.rng, mutation_settings)
         self.field[target_pos[0]][target_pos[1]].agent.mutate(self.rng, mutation_settings)
+
+    def give_birth_random(self, agent, brain_settings, mutation_settings):
+        dx = int(self.rng.random() * (2 * agent.radius + 1))
+        dy = int(self.rng.random() * (2 * agent.radius + 1))
+        energy = int(max(self.rng.random() * agent.energy, agent.energy / 2))
+        self.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy), energy, brain_settings, mutation_settings)
 
     def do_nothing(self):
         pass
@@ -345,10 +353,11 @@ class Field:
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             return
 
-        agent.energy -= amount_of_energy
         # target_agent = self.agents[target_pos[0]][target_pos[1]]
         target_agent = self.field[target_pos[0]][target_pos[1]].agent
-        target_agent.energy = min(255, target_agent.energy + amount_of_energy)
+        new_amount = min(amount_of_energy, target_agent.energy_cap - target_agent.energy)
+        agent.energy -= new_amount
+        target_agent.energy += int(new_amount * self.share_penalty)
 
     def add_minerals(self):
         for row in self.field:
