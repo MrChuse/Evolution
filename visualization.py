@@ -148,10 +148,7 @@ def draw_settings(background, screen, settings=True):
                 if w.state and w.clicked(event):
                     g.load_game_from_file(w.text)
                     set_screen_size(background, screen, MAPW, MAPH)
-                    for button in buttons:
-                        button.draw(screen)
-                    for box in input_boxes:
-                        box.draw(screen)
+                    settings = False
 
             for box in input_boxes:
                 box.input(event)
@@ -231,19 +228,16 @@ def draw_cell(cell, surface, i, j, temp=False):
 def draw_foods(cell_matrix, surface):
     s = max(CELL_SIZE // 5, 2)
     min_surf = pygame.Surface((s, s))
+    min_surf.fill(CACTUS)
     meat_surf = pygame.Surface((s, s))
     meat_surf.fill((0, 0, 255))
     for i, line in enumerate(cell_matrix):
         for j, cell in enumerate(line):
             x, y = cell_position(i, j, CELL_SIZE)
             if cell.is_minerals_here():
-                min_surf.fill(food_color_map[cell.get_cell_type()])
                 surface.blit(min_surf, (x, y))
             if cell.is_meat_here():
                 surface.blit(meat_surf, (x + CELL_SIZE - s, y + CELL_SIZE - s))
-
-
-    pass
 
 
 def draw_food(cell, surface, i, j):
@@ -293,14 +287,10 @@ def draw_field(cell_matrix, surface, temp=False, simple=False):
     if simple:
         surface.fill(WHITE)
         draw_grid(1, surface)
-        # for agent in agent_list:
-           # draw_agent(cell_matrix[agent[0]][agent[1]].agent, surface, eng, True)
     else:
         for i, line in enumerate(cell_matrix):
             for j, cell in enumerate(line):
                 draw_cell(cell, surface, i, j, temp)
-                #if cell.agent is not None:
-                    #draw_agent(cell.agent, surface, eng, False)
 
 
 pygame.init()
@@ -333,10 +323,11 @@ speedup_button = Button(110 + MAPW, 110, 40, 40, text='>>>')
 statistics_button = Button(30 + MAPW, 160, 120, 40, text='Statistics')
 #  god kills agents and spawns them
 settings_button = Button(30 + MAPW, 210, 120, 40, text='Settings')
-simple_button = Button(30 + MAPW, H - 60, 120, 40, state=simple, text='Simple!')
+simple_button = Button(30 + MAPW, H - 60, 75, 40, state=simple, text='Simple!')
+restart_button = Button(110 + MAPW, H - 60, 45, 40, state=simple, text='RST')
 
 buttons = [temp_button, eng_button, slowdown_button, pause_button, speedup_button,
-           god_mode_button, settings_button, simple_button, statistics_button, gfx_button]
+           god_mode_button, settings_button, simple_button, statistics_button, gfx_button, restart_button]
 for b in buttons:
     b.draw(scr)
 
@@ -351,12 +342,15 @@ pause = True
 
 while life:
 
+    if not pause:
+        g.update()
+
     if gfx:
-        # draw_field(g.field.q, g.field.field, map_surf, temp, eng, simple)
         action_surf.blit(map_surf, (0, 0))
         draw_population(g.field.q, g.field.field, action_surf, eng, simple)
         if not simple:
             draw_foods(g.field.field, map_surf)
+
     background.blit(scr, (0, 0))
     background.blit(action_surf, (10, 10))
 
@@ -380,6 +374,9 @@ while life:
                 simple = not simple
                 draw_field(g.field.field, map_surf, temp, simple)
                 simple_button.draw(scr)
+            elif restart_button.clicked(event):
+                g = Game()
+                draw_field(g.field.field, map_surf, temp, simple)
             # speed manipulations
             elif slowdown_button.clicked(event):
                 if FREQUENCY > 15:
@@ -447,9 +444,6 @@ while life:
 
     if info_block:
         info_block.draw(scr)
-
-    if not pause:
-        g.update()
 
     clock.tick(FREQUENCY)
     pygame.display.update()
