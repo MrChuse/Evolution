@@ -1,6 +1,6 @@
 from Agent import Agent
 import random, sys
-# import Noisemap
+import perlin
 
 class CellType:
     """
@@ -61,10 +61,11 @@ class Cell:
         returns cell type
     """
 
-    def __init__(self, cell_type=0, agent=None):
-        self.cell_type = CellType(cell_type)
+    def __init__(self, cell_type=0, temperature=0, agent=None):
+        self.cell_type = CellType(cell_type, temperature=temperature)
         self.agent = agent
         self.photosyn_nrg = self.cell_type.temperature // 12 + 5
+        print(self.photosyn_nrg)
         
     def is_occupied(self):
         return self.agent is not None
@@ -169,20 +170,23 @@ class Field:
 
         self.agents = []
         self.field = []
-        # temperature = Noisemap.Mapgen(max(width, height), 1)
-        for i in range(width):
-            self.agents.append([])
-            self.field.append([])
-            for j in range(height):
-                c = Cell()
-                c.cell_type.temperature = - (j / self.height * 128) + 64
-                self.field[i].append(c)
-                self.agents[i].append(None)
 
         if seed is None:
             seed = random.randrange(sys.maxsize)
         self.rng = random.Random(seed)
         print("Seed is:", seed)
+
+        noise = perlin.SimplexNoise()
+        for i in range(width):
+            self.agents.append([])
+            self.field.append([])
+            for j in range(height):
+                temperature = int(noise.noise2(i/width, j/height) * 64)
+                c = Cell(temperature=temperature)
+                # c.cell_type.temperature = - (j / self.height * 128) + 64
+                self.field[i].append(c)
+                self.agents[i].append(None)
+
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
         # self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
