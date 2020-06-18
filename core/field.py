@@ -261,10 +261,6 @@ class Field:
                 # print(self.agents[target_pos[0]][target_pos[1]])
                 agent.energy = min(agent.energy + self.field[target_pos[0]][target_pos[1]].get_meat(), agent.energy_cap)
 
-            # if agent.brain.check_ally(self.agents[target_pos[0]][target_pos[1]], 2):
-            if agent.brain.check_ally(self.field[target_pos[0]][target_pos[1]].agent.brain, 2):
-                return
-
             agent.energy -= 4
             received_energy = self.kill_agent(target_pos)
             self.field[target_pos[0]][target_pos[1]].add_meat(received_energy // 8)
