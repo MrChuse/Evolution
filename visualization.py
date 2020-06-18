@@ -4,8 +4,8 @@ import sys
 
 FREQUENCY = 30
 
-MAPW = 440
-MAPH = 440
+MAPW = 600
+MAPH = 600
 
 W = MAPW + 200
 H = MAPH + 40
@@ -23,7 +23,7 @@ def set_screen_size(background, scr, mapw, maph):
     W = MAPW + 200
     H = MAPH + 40
     CELL_SIZE = min(MAPW // k, MAPH // n)
-    background = pygame.display.set_mode((W, H))
+    background = pygame.display.set_mode((W, H), pygame.RESIZABLE)
     scr = pygame.Surface((W, H))
     scr.fill(WHITE)
     print("SIZE SET", H, ":", W)
@@ -276,7 +276,7 @@ def draw_field(cell_matrix, surface, temp=False, simple=False):
 
 pygame.init()
 
-background = pygame.display.set_mode((W, H))
+background = pygame.display.set_mode((W, H), pygame.RESIZABLE)
 
 scr = pygame.Surface((W, H))
 scr.fill(WHITE)
@@ -361,7 +361,7 @@ while life:
                 draw_field(g.field.field, map_surf, temp, simple)
             # speed manipulations
             elif slowdown_button.clicked(event):
-                if FREQUENCY > 15:
+                if FREQUENCY > 10:
                     FREQUENCY = FREQUENCY / 2
                     if not speedup_button.state:
                         speedup_button.unlock()
@@ -412,7 +412,9 @@ while life:
                         info_block = None
                         brain_data = None
                     scr.blit(gfx_msg, (10, MAPH + 11))
-
+            elif info_block is not None and info_block.button.clicked(event):
+                g.save_agent_to_file(info_block.agent)
+                info_block.button.unlock()
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
                 x, y = (event.pos[0] - 10)//CELL_SIZE, (event.pos[1] - 10)//CELL_SIZE
 
