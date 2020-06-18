@@ -112,6 +112,7 @@ class Game:
             # stats
             total_bots += 1
             bots_energy += agent.energy
+            bots_energy += agent.energy
             brain_size = agent.get_brain_size()
             sum_brain_size += brain_size
             if brain_size > max_brain_size:
@@ -146,6 +147,10 @@ class Game:
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
                 self.field.field[agent.pos[0]][agent.pos[1]].add_meat(2)
+
+            if agent.energy > agent.energy_cap:
+                brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
+                self.field.give_birth_random(agent, brain_settings, self.base_mutation_settings)
 
         if total_bots > 0:
             avg_bot_energy = (bots_energy / total_bots)

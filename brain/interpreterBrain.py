@@ -94,7 +94,7 @@ class InterpreterBrain(BaseBrain):
                 return command_and_arguments  # return action and its arguments
             else:
                 try:
-                    self.pointer = (self.pointer + self.commands[current_command_id][2](sensor_data, command_and_arguments)) % len(self.data)
+                    self.pointer = (self.pointer + self.commands[current_command_id][2](sensor_data, command_and_arguments) + 1) % len(self.data)
                 except Exception:
                     self.pointer = (self.pointer + 1) % len(self.data)
                     continue
