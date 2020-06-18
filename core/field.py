@@ -196,11 +196,11 @@ class Field:
         return 64 * t
 
     def move_field(self):
-        for index, pos in enumerate(reversed(self.q)):
-            if pos[0] != 0:
-                self.q[index] = pos[0] - 1, pos[1]
-                self.field[pos[0]][pos[1]].agent.pos = pos[0] - 1, pos[1]
-            else:
+        for index, pos in enumerate(self.q):
+            self.q[index] = pos[0] - 1, pos[1]
+            self.field[pos[0]][pos[1]].agent.pos = pos[0] - 1, pos[1]
+        for pos in reversed(self.q):
+            if pos[0] < 0:
                 self.q.remove(pos)
 
         self.field = self.field[1:]
