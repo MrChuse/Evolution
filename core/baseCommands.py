@@ -1,7 +1,7 @@
 def ucj(sensor_data, com_arg): # UnConditional Jump
     return com_arg[1]
 def cha(sensor_data, com_arg): # CHeck Ally
-    return com_arg[2] if sensor_data[0].agent.brain.check_ally(sensor_data[com_arg[1]].agent.brain) else com_arg[3]
+    return com_arg[3] if sensor_data[0].agent.brain.check_ally(sensor_data[com_arg[1]].agent.brain, com_arg[2]) else com_arg[4]
 def occ(sensor_data, com_arg): # is OCCupied
     return com_arg[2] if sensor_data[com_arg[1]].is_occupied() else com_arg[3]
 def ifd(sensor_data, com_arg): # Is FooD present
@@ -22,7 +22,7 @@ eat                    = (3, True)        # id = 2
 give_birth_to          = (3, True)        # id = 3
 share_energy           = (3, True)        # id = 4
 unconditional_jump     = (1, False, ucj)  # id = 5
-check_ally             = (3, False, cha)  # id = 6
+check_ally             = (4, False, cha)  # id = 6
 is_occupied            = (3, False, occ)  # id = 7
 is_food_present        = (3, False, ifd)  # id = 8
 compare_amt_meat       = (4, False, ame)  # id = 9

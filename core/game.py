@@ -146,7 +146,7 @@ class Game:
 
     @staticmethod
     def save_agent_to_file(agent, name='agent1'):
-        proper_path = './agents/' + name + '.agn'
+        proper_path = './agents/' + agent.name[:3] + '_rad' + str(agent.radius) + '_nrg' + str(agent.energy_cap) + '_' + name + '.agn'
         with open(proper_path, 'wb') as fout:
             pickle.dump(agent, fout)
 
