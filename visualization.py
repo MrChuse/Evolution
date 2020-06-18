@@ -410,10 +410,11 @@ while life:
                 else:
                     gfx_srf = pygame.font.SysFont('bahnschrift', 14)
                     gfx_msg = gfx_srf.render('GFX OFF', 0, (255, 0, 0))
-                    pygame.draw.rect(scr, WHITE, info_block.rect)
-                    pygame.draw.rect(scr, WHITE, brain_data.rect)
-                    info_block = None
-                    brain_data = None
+                    if info_block:
+                        pygame.draw.rect(scr, WHITE, info_block.rect)
+                        pygame.draw.rect(scr, WHITE, brain_data.rect)
+                        info_block = None
+                        brain_data = None
                     scr.blit(gfx_msg, (10, MAPH + 11))
 
             elif god and 10 < event.pos[0] < CELL_SIZE*k + 10 and 10 < event.pos[1] < 10 + CELL_SIZE*n:
