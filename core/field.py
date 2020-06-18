@@ -175,7 +175,7 @@ class Field:
         self.rng = random.Random(seed)
         print("Seed is:", seed)
 
-        noise = perlin.SimplexNoise()
+        noise = perlin.SimplexNoise(randint_function=self.rng.randint)
         for i in range(width):
             self.agents.append([])
             self.field.append([])
