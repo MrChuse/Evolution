@@ -19,17 +19,18 @@ def tmn(sensor_data, com_arg): # TeMPerature Negative
 photosynthesis         = (0, True)        # id = 0
 move                   = (1, True)        # id = 1
 eat                    = (1, True)        # id = 2
-give_birth_to          = (2, True)        # id = 3
-share_energy           = (2, True)        # id = 4
-unconditional_jump     = (1, False, ucj)  # id = 5
-check_ally             = (4, False, cha)  # id = 6
-is_occupied            = (3, False, occ)  # id = 7
-is_food_present        = (3, False, ifd)  # id = 8
-compare_amt_meat       = (4, False, ame)  # id = 9
-compare_amt_minerals   = (4, False, ami)  # id = 10
-compare_tmp_pos        = (4, False, tmp)  # id = 11
-compare_tmp_neg        = (4, False, tmn)  # id = 12
+eat_mineral            = (1, True)        # id = 3
+give_birth_to          = (2, True)        # id = 4
+share_energy           = (2, True)        # id = 5
+unconditional_jump     = (1, False, ucj)  # id = 6
+check_ally             = (4, False, cha)  # id = 7
+is_occupied            = (3, False, occ)  # id = 8
+is_food_present        = (3, False, ifd)  # id = 9
+compare_amt_meat       = (4, False, ame)  # id = 10
+compare_amt_minerals   = (4, False, ami)  # id = 11
+compare_tmp_pos        = (4, False, tmp)  # id = 12
+compare_tmp_neg        = (4, False, tmn)  # id = 13
 
-base_commands = [photosynthesis, move, eat, give_birth_to, share_energy, unconditional_jump,
+base_commands = [photosynthesis, move, eat, eat_mineral, give_birth_to, share_energy, unconditional_jump,
                  check_ally, is_occupied, is_food_present, compare_amt_meat, compare_amt_minerals,
                  compare_tmp_pos, compare_tmp_neg]
