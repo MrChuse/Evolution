@@ -300,6 +300,7 @@ class Field:
             return
 
         if self.field[target_pos[0]][target_pos[1]].is_occupied():
+            self.kill_agent(agent.pos)
             return
 
         self.spawn_agent(target_pos, brain_settings, energy)
