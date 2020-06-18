@@ -77,7 +77,7 @@ class Game:
                                             'max_brain_size_change'],
                                            defaults=(None,) * 5)
 
-        data = [0] * 5 + [3, 5, 32] + [0] * 5 + [3, 6, 32] + [0] * 5 + [3, 7, 32] + [0] * 5 + [3, 8, 32]
+        data = [0] * 5 + [4, 5, 32] + [0] * 5 + [4, 6, 32] + [0] * 5 + [4, 7, 32] + [0] * 5 + [4, 8, 32]
         command_limit = 10
         brain_settings = (base_commands, command_limit, data)
         self.base_brain_settings = brain_settings
@@ -129,13 +129,16 @@ class Game:
             elif commands_and_arguments[0] == 2:  # id = 2 == eat
                 dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
                 self.field.eat(agent, (agent.pos[0] + dx, agent.pos[1] + dy), index)
-            elif commands_and_arguments[0] == 3:  # id = 3 == give_birth_to
+            elif commands_and_arguments[0] == 3:  # id = 3 == eat_mineral
+                dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
+                self.field.eat_mineral(agent, (agent.pos[0] + dx, agent.pos[1] + dy))
+            elif commands_and_arguments[0] == 4:  # id = 4 == give_birth_to
                 dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
                 child_energy = agent.energy * commands_and_arguments[2] // 64 + 1
                 brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
                 self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy),
                                          child_energy, brain_settings, self.base_mutation_settings)
-            elif commands_and_arguments[0] == 4:  # id = 4 == share_energy
+            elif commands_and_arguments[0] == 5:  # id = 5 == share_energy
                 dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
                 amount_of_energy = agent.energy * commands_and_arguments[2] // 64 + 1
                 self.field.share_energy(agent, (agent.pos[0] + dx, agent.pos[1] + dy), amount_of_energy)
@@ -144,7 +147,7 @@ class Game:
 
             self.field.temperature_effect(agent)
             self.field.brain_size_effect(agent)
-            if agent.energy < 0:
+            if agent.energy < 0 and self.field.field[agent.pos[0]][agent.pos[1]].agent:
                 self.field.kill_agent(agent.pos)
                 self.field.field[agent.pos[0]][agent.pos[1]].add_meat(2)
 
