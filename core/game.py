@@ -90,16 +90,14 @@ class Game:
         self.field.spawn_agent((self.field.width // 2, self.field.height // 2),
                                self.base_brain_settings, brain_type='interpreter')
 
-        # self.max_energy_cap = -1
-
     def update(self):
+        # print(len(self.field.q))
         self.field.add_minerals()
         total_bots = 0
         bots_energy = 0
         sum_brain_size = 0
         max_brain_size = 0
         for index, pos in enumerate(self.field.q):
-            # agent = self.field.agents[pos[0]][pos[1]]
             agent = self.field.field[pos[0]][pos[1]].agent
 
             if agent is None:
@@ -108,7 +106,6 @@ class Game:
             if not agent.alive:
                 if not self.field.field[pos[0]][pos[1]].is_meat_here():
                     self.field.q.remove(pos)
-                    # self.field.agents[pos[0]][pos[1]] = None
                     self.field.field[pos[0]][pos[1]].agent = None
                 continue
               
@@ -120,9 +117,6 @@ class Game:
             sum_brain_size += brain_size
             if brain_size > max_brain_size:
                 max_brain_size = brain_size
-
-            # if agent.energy_cap > self.max_energy_cap:
-            #     self.max_energy_cap = agent.energy_cap
 
             commands_and_arguments = agent.make_a_move(self.field.get_sensor_data(agent))
             if commands_and_arguments[0] == -1:
@@ -152,6 +146,7 @@ class Game:
             self.field.brain_size_effect(agent)
             if agent.energy < 0:
                 self.field.kill_agent(agent.pos)
+                self.field.field[agent.pos[0]][agent.pos[1]].add_meat(2)
 
             if agent.energy > agent.energy_cap:
                 brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))

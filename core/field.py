@@ -29,7 +29,7 @@ class CellType:
         self.meat = meat
         self.minerals = minerals
         self.temperature = temperature
-        self.meat_energy_value = 8 - (self.temperature - 1) // 8
+        self.meat_energy_value = 7 - (self.temperature - 1) // 8
         self.mineral_energy_value = (self.temperature - 1) // 8 + 8
 
 
@@ -64,7 +64,7 @@ class Cell:
     def __init__(self, cell_type=0, temperature=0, agent=None):
         self.cell_type = CellType(cell_type, temperature=temperature)
         self.agent = agent
-        self.photosyn_nrg = self.cell_type.temperature // 12 + 5
+        self.photosyn_nrg = self.cell_type.temperature // 12 + 6
         
     def is_occupied(self):
         return self.agent is not None
@@ -176,6 +176,8 @@ class Field:
         self.rng = random.Random(seed)
         print("Seed is:", seed)
 
+        self.mineral_spawn_probability = 0.0001
+
         noise = perlin.SimplexNoise(randint_function=self.rng.randint)
         for i in range(width):
             self.agents.append([])
@@ -189,28 +191,23 @@ class Field:
 
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
-        # self.agents[pos[0]][pos[1]] = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
         self.field[pos[0]][pos[1]].agent = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
         self.q.append(pos)
 
     def kill_agent(self, target_pos):
         if target_pos[0] < 0 or target_pos[0] >= self.width:
-            return
+            return 0
 
         if target_pos[1] < 0 or target_pos[1] >= self.height:
-            return
+            return 0
 
-        # if self.agents[target_pos[0]][target_pos[1]].energy < 0:
         if self.field[target_pos[0]][target_pos[1]].agent.energy < 0:
             self.q.remove(target_pos)
-            # self.agents[target_pos[0]][target_pos[1]] = None
             self.field[target_pos[0]][target_pos[1]].agent = None
-            return
+            return 0
 
-        # self.agents[target_pos[0]][target_pos[1]].alive = False
         self.field[target_pos[0]][target_pos[1]].agent.alive = False
 
-        # return self.agents[target_pos[0]][target_pos[1]].energy
         return self.field[target_pos[0]][target_pos[1]].agent.energy
 
     def make_a_move(self, agent, new_pos, index):
@@ -227,10 +224,8 @@ class Field:
             return agent.pos
 
         agent.energy -= 8 * max(abs(agent.pos[0] - new_pos[0]), abs(agent.pos[1] - new_pos[1]))
-        # self.agents[agent.pos[0]][agent.pos[1]] = None
         self.field[agent.pos[0]][agent.pos[1]].agent = None
         agent.pos = new_pos
-        # self.agents[new_pos[0]][new_pos[1]] = agent
         self.field[new_pos[0]][new_pos[1]].agent = agent
         self.q[index] = new_pos
 
@@ -255,7 +250,6 @@ class Field:
         if not self.field[target_pos[0]][target_pos[1]].is_occupied():
             agent.energy += self.field[target_pos[0]][target_pos[1]].get_mineral()
         else:
-            # if not self.agents[target_pos[0]][target_pos[1]].alive:
             if not self.field[target_pos[0]][target_pos[1]].agent.alive:
                 # print(agent, agent.pos)
                 # print(target_pos)
@@ -362,4 +356,5 @@ class Field:
     def add_minerals(self):
         for row in self.field:
             for cell in row:
-                cell.add_mineral()
+                if self.rng.random() < self.mineral_spawn_probability:
+                    cell.add_mineral()
