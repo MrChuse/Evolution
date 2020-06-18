@@ -243,14 +243,14 @@ def draw_agent(agent, surface, energy_mode=False, simple=False):
     x, y = cell_position(agent.pos[0], agent.pos[1], CELL_SIZE)
     if simple:
         agent_surf = pygame.Surface((CELL_SIZE, CELL_SIZE))
-        agent_surf.fill(CACTUS if not energy_mode else energy_to_color(agent.energy))
+        agent_surf.fill(energy_to_color(agent.energy) if energy_mode else CACTUS if agent.alive else (0, 0, 0))
         surface.blit(agent_surf, (x,y))
     else:
         x += max(CELL_SIZE // 5, 2)
         y += max(CELL_SIZE // 5, 2)
         s = CELL_SIZE - 2 * max(CELL_SIZE // 5, 2)
         agent_surf = pygame.Surface((s, s))
-        agent_surf.fill(WHITE if not energy_mode else energy_to_color(agent.energy))
+        agent_surf.fill(energy_to_color(agent.energy) if energy_mode else WHITE if agent.alive else (0, 0, 0))
         if CELL_SIZE > 10 or not energy_mode:
             pygame.draw.rect(agent_surf, (0, 0, 0), (0, 0, s, s), 1)
         surface.blit(agent_surf, (x, y))
