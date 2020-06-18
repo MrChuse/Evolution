@@ -176,7 +176,7 @@ class Field:
         self.rng = random.Random(seed)
         print("Seed is:", seed)
 
-        self.mineral_spawn_probability = 0.0001
+        self.mineral_spawn_probability = 0.001
 
         noise = perlin.SimplexNoise(randint_function=self.rng.randint)
         for i in range(width):
@@ -195,20 +195,11 @@ class Field:
         self.q.append(pos)
 
     def kill_agent(self, target_pos):
-        if target_pos[0] < 0 or target_pos[0] >= self.width:
-            return 0
+        received_energy = self.field[target_pos[0]][target_pos[1]].agent.energy
+        self.q.remove(target_pos)
+        self.field[target_pos[0]][target_pos[1]].agent = None
 
-        if target_pos[1] < 0 or target_pos[1] >= self.height:
-            return 0
-
-        if self.field[target_pos[0]][target_pos[1]].agent.energy < 0:
-            self.q.remove(target_pos)
-            self.field[target_pos[0]][target_pos[1]].agent = None
-            return 0
-
-        self.field[target_pos[0]][target_pos[1]].agent.alive = False
-
-        return self.field[target_pos[0]][target_pos[1]].agent.energy
+        return max(0, received_energy)
 
     def make_a_move(self, agent, new_pos, index):
         if new_pos[0] < 0 or new_pos[0] >= self.width:
@@ -248,17 +239,23 @@ class Field:
             return
 
         if not self.field[target_pos[0]][target_pos[1]].is_occupied():
-            agent.energy += self.field[target_pos[0]][target_pos[1]].get_mineral()
+            agent.energy += self.field[target_pos[0]][target_pos[1]].get_meat()
         else:
-            if not self.field[target_pos[0]][target_pos[1]].agent.alive:
-                # print(agent, agent.pos)
-                # print(target_pos)
-                # print(self.agents[target_pos[0]][target_pos[1]])
-                agent.energy += self.field[target_pos[0]][target_pos[1]].get_meat()
-
             agent.energy -= 4
             received_energy = self.kill_agent(target_pos)
             self.field[target_pos[0]][target_pos[1]].add_meat(received_energy // 8)
+
+    def eat_mineral(self, agent, target_pos):
+        if target_pos[0] < 0 or target_pos[0] >= self.width:
+            return
+
+        if target_pos[1] < 0 or target_pos[1] >= self.height:
+            return
+
+        if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
+            return
+
+        agent.energy += self.field[target_pos[0]][target_pos[1]].get_mineral()
 
     def get_info(self, agent, target_pos):
         if target_pos[0] < 0 or target_pos[0] >= self.width:
@@ -293,6 +290,7 @@ class Field:
 
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
+
 
         if self.field[target_pos[0]][target_pos[1]].is_occupied():
             self.kill_agent(agent.pos)
