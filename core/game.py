@@ -64,7 +64,7 @@ class Game:
         if empty:
             self.field = None
         else:
-            self.field = Field(seed=4952008353301190740)
+            self.field = Field()
         self.stats = Statistics()
         self.tick = 0
         self.move_period = 50
