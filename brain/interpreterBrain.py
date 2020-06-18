@@ -2,39 +2,6 @@ from brain.baseBrain import BaseBrain
 # import logging
 
 
-class ModuloInteger:
-    def __new__(cls, value, modulo):
-        return object.__new__(cls)
-
-    def __getnewargs__(self):
-        return self.value, self.modulo
-
-    def __init__(self, value, modulo):
-        self.value = value
-        self.modulo = modulo
-
-    def __add__(self, other):
-        new = self.__new__(type(self), (self.value + other) % self.modulo, self.modulo)
-        new.__init__((self.value + other) % self.modulo, self.modulo)
-        return new
-
-    def __iadd__(self, other):
-        return self + other
-
-    def __str__(self):
-        return str(self.value)
-
-    def __index__(self):
-        # print(type(self.value))
-        return self.value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __ge__(self, other):
-        return self.value >= other.value
-
-
 class InterpreterBrain(BaseBrain):
     """
     This class implements a decision-making machine with a turing-complete language
@@ -85,7 +52,7 @@ class InterpreterBrain(BaseBrain):
         self.commands = commands
         self.command_limit = command_limit
 
-        self.pointer = ModuloInteger(0, len(data))
+        self.pointer = 0
         self.counter_limit = 0
 
     def make_a_move(self, sensor_data=None):
@@ -110,12 +77,12 @@ class InterpreterBrain(BaseBrain):
         while self.counter_limit < self.command_limit:
             current_command_id = self.data[self.pointer]
             if current_command_id >= len(self.commands):
-                self.pointer += 1      # if command is invalid, move the pointer,
+                self.pointer = (self.pointer + 1) % len(self.data)      # if command is invalid, move the pointer,
                 self.counter_limit += 1  # update the counter, proceed to the next command
                 continue
 
             left_data = self.pointer  # calculate
-            right_data = self.pointer + self.commands[current_command_id][0] + 1
+            right_data = (self.pointer + self.commands[current_command_id][0] + 1) % len(self.data)
 
             if left_data >= right_data:  # check for the overlap
                 command_and_arguments = self.data[left_data:] + self.data[:right_data]
@@ -127,9 +94,9 @@ class InterpreterBrain(BaseBrain):
                 return command_and_arguments  # return action and its arguments
             else:
                 try:
-                    self.pointer += self.commands[current_command_id][2](sensor_data, command_and_arguments)
+                    self.pointer = (self.pointer + self.commands[current_command_id][2](sensor_data, command_and_arguments)) % len(self.data)
                 except Exception:
-                    self.pointer += 1
+                    self.pointer = (self.pointer + 1) % len(self.data)
                     continue
                 finally:
                     self.counter_limit += 1
@@ -161,7 +128,6 @@ class InterpreterBrain(BaseBrain):
             else:
                 for i in range(-dsize):
                     self.data.pop(int(rng.random() * len(self.data)))
-            self.pointer = ModuloInteger(0, len(self.data))
 
     def check_ally(self, other, tolerance):
         """

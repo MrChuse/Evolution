@@ -45,7 +45,6 @@ def energy_to_color(en):
         return list(YELLOW[i] * (1 - d) + RED[i] * d for i in range(3))
 
 
-
 cell_color_map = {4: ROCK,
                   0: SAND,
                   2: GRASS,
@@ -160,6 +159,33 @@ class InfoBox:
             screen.blit(surf, (self.rect.x + 5, self.rect.y + 5 + k*20))
         self.button.draw(screen)
         pygame.draw.rect(screen, self.color, self.rect, 2)
+
+
+class BrainData:
+    def __init__(self, agent, x, y):
+        self.rect = pygame.Rect(x, y, 250, 20)
+        self.agent = agent
+        p = str(agent.brain.data[agent.brain.pointer])
+        if agent.brain.pointer > len(agent.brain.data) - 10:
+            s = "|".join(map(str, agent.brain.data[agent.brain.pointer + 1:])) +"|" \
+                +"|".join(map(str,agent.brain.data[:agent.brain.pointer + 10 - len(agent.brain.data)]))
+        else:
+            s = "|".join(map(str, agent.brain.data[agent.brain.pointer + 1: agent.brain.pointer + 10]))
+        self.point = pygame.font.SysFont('bahnschrift', 14).render(p, True, (0, 0, 255))
+        self.surf = pygame.font.SysFont('bahnschrift', 14).render(s, True, (0, 0, 0))
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, WHITE, self.rect)
+        p = str(self.agent.brain.data[self.agent.brain.pointer])
+        if self.agent.brain.pointer > len(self.agent.brain.data) - 10:
+            s = "|".join(map(str, self.agent.brain.data[self.agent.brain.pointer + 1:])) + "|" \
+                + "|".join(map(str, self.agent.brain.data[:self.agent.brain.pointer - len(self.agent.brain.data) + 10]))
+        else:
+            s = "|".join(map(str, self.agent.brain.data[self.agent.brain.pointer + 1: self.agent.brain.pointer + 10]))
+        self.point = pygame.font.SysFont('bahnschrift', 14).render(p, True, (0, 0, 255))
+        self.surf = pygame.font.SysFont('bahnschrift', 14).render(s, True, (0, 0, 0))
+        screen.blit(self.point, (self.rect.x, self.rect.y + 3))
+        screen.blit(self.surf, (self.rect.x + 20, self.rect.y + 3))
 
 
 class Graphic:

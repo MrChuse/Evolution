@@ -9,6 +9,45 @@ import os
 from collections import namedtuple
 
 
+def from_position_to_dx_dy(position, radius):
+    """
+     9 13 17 21 10 - spiral
+    24  1  5  2 14
+    20  8  0  6 18
+    16  4  7  3 22
+    12 23 19 15 11
+    position: int
+        the position on the spiral
+    radius: positive int
+        max radius of the spiral
+    returns dx, dy tuple - position relative to 0
+    """
+    # reduce position to spiral size
+    position %= (2 * radius + 1) ** 2
+
+    if position == 0:
+        return 0, 0
+    cycle = 0
+    for i in range(1, radius + 1):
+        if position >= (2 * i + 1) ** 2:
+            continue
+        cycle = i
+        break
+    if cycle == 0:
+        print(position, radius, 'pos, radius')
+        raise ValueError('cycle is 0')
+
+    d = (position - (2 * cycle - 1) ** 2) // 4
+    if position % 4 == 1:
+        return -cycle + d, -cycle  # up
+    elif position % 4 == 2:
+        return cycle, -cycle + d  # right
+    elif position % 4 == 3:
+        return cycle - d, cycle  # down
+    else:
+        return -cycle, cycle - d  # left
+
+
 class Game:
     def __init__(self, empty=None):
         # directories stuff
@@ -38,7 +77,7 @@ class Game:
                                             'max_brain_size_change'],
                                            defaults=(None,) * 5)
 
-        data = [0] * 4 + [3, 1, 0, 32] + [0] * 4 + [3, 0, 1, 32] + [0] * 4 + [3, 1, 2, 32] + [0] * 4 + [3, 2, 1, 32]
+        data = [0] * 5 + [3, 5, 32] + [0] * 5 + [3, 6, 32] + [0] * 5 + [3, 7, 32] + [0] * 5 + [3, 8, 32]
         command_limit = 10
         brain_settings = (base_commands, command_limit, data)
         self.base_brain_settings = brain_settings
@@ -90,24 +129,20 @@ class Game:
             if commands_and_arguments[0] == 0:  # id = 0 == photosyn
                 self.field.photosyn(agent)
             elif commands_and_arguments[0] == 1:  # id = 1 == make_a_move
-                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
-                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
+                dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
                 self.field.make_a_move(agent, (agent.pos[0] + dx, agent.pos[1] + dy), index)
             elif commands_and_arguments[0] == 2:  # id = 2 == eat
-                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
-                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
+                dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
                 self.field.eat(agent, (agent.pos[0] + dx, agent.pos[1] + dy), index)
             elif commands_and_arguments[0] == 3:  # id = 3 == give_birth_to
-                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
-                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
-                child_energy = agent.energy * commands_and_arguments[3] // 64 + 1
+                dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
+                child_energy = agent.energy * commands_and_arguments[2] // 64 + 1
                 brain_settings = (agent.brain.commands, agent.brain.command_limit, copy.deepcopy(agent.brain.data))
                 self.field.give_birth_to(agent, (agent.pos[0] + dx, agent.pos[1] + dy),
                                          child_energy, brain_settings, self.base_mutation_settings)
             elif commands_and_arguments[0] == 4:  # id = 4 == share_energy
-                dx = commands_and_arguments[1] % (2 * agent.radius + 1) - agent.radius
-                dy = commands_and_arguments[2] % (2 * agent.radius + 1) - agent.radius
-                amount_of_energy = agent.energy * commands_and_arguments[3] // 64 + 1
+                dx, dy = from_position_to_dx_dy(commands_and_arguments[1], agent.radius)
+                amount_of_energy = agent.energy * commands_and_arguments[2] // 64 + 1
                 self.field.share_energy(agent, (agent.pos[0] + dx, agent.pos[1] + dy), amount_of_energy)
             else:
                 self.field.do_nothing()
@@ -133,7 +168,7 @@ class Game:
                             total_energy=bots_energy + env_energy,
                             avg_brain_len=avg_brain_size,
                             max_brain_len=max_brain_size)
-        
+
     def save_game_to_file(self, name='game1'):
         proper_path = './worlds/' + name + '.wld'
         with open(proper_path, 'wb') as fout:
