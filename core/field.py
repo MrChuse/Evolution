@@ -178,17 +178,29 @@ class Field:
 
         self.mineral_spawn_probability = 0.001
 
-        noise = perlin.SimplexNoise(randint_function=self.rng.randint)
+        self.noise = perlin.SimplexNoise(randint_function=self.rng.randint)
+        self.noise_y = 1
         for i in range(width):
             self.agents.append([])
             self.field.append([])
             for j in range(height):
-                temperature = int(noise.noise2(i/width, j/height) * 64)
+                temperature = int(self.from_noise_to_temperature(self.noise.noise2(i/width, j/height)))
                 c = Cell(temperature=temperature)
                 # c.cell_type.temperature = - (j / self.height * 128) + 64
                 self.field[i].append(c)
                 self.agents[i].append(None)
 
+    @staticmethod
+    def from_noise_to_temperature(t):
+        return 64 * t
+
+    def move_field(self):
+        self.field = self.field[1:]
+        self.field.append([])
+        for i in range(self.width):
+            temperature = int(self.from_noise_to_temperature(self.noise.noise2(i / self.width, self.noise_y)))
+            self.field[-1].append(Cell(temperature=temperature))
+        self.noise_y += 1 / self.height
 
     def spawn_agent(self, pos, brain_settings, energy=50, energy_cap=255, radius=1, brain_type='interpreter'):
         self.field[pos[0]][pos[1]].agent = Agent(pos, energy, energy_cap, radius, brain_type, brain_settings)
