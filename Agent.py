@@ -1,6 +1,7 @@
 import brain
 from collections import defaultdict
 
+
 class Agent:
     """
     A creature that will live in the artificial environment
