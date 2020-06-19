@@ -94,6 +94,8 @@ class Game:
 
     def update(self):
         # print(len(self.field.q))
+        if len(self.field.q) == 0:
+            self.__init__()
         self.field.add_minerals()
         total_bots = 0
         bots_energy = 0
