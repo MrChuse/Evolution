@@ -202,7 +202,7 @@ class Field:
         for pos in reversed(self.q):
             if pos[0] < 0:
                 self.q.remove(pos)
-
+        #print(self.q)
         self.field = self.field[1:]
         self.field.append([])
         for i in range(self.width):
@@ -215,11 +215,14 @@ class Field:
         self.q.append(pos)
 
     def kill_agent(self, target_pos):
-        received_energy = self.field[target_pos[0]][target_pos[1]].agent.energy
-        self.q.remove(target_pos)
-        self.field[target_pos[0]][target_pos[1]].agent = None
+        # let's imagine that someone very bad tried to kill an unexisting agent. Wooooow! We've stopped him!!!!!!!
+        if self.q.count(target_pos) > 0:
+            received_energy = self.field[target_pos[0]][target_pos[1]].agent.energy
+            self.q.remove(target_pos)
+            self.field[target_pos[0]][target_pos[1]].agent = None
 
-        return max(0, received_energy)
+            return max(0, received_energy)
+        return 0
 
     def make_a_move(self, agent, new_pos, index):
         if new_pos[0] < 0 or new_pos[0] >= self.width:
@@ -317,8 +320,9 @@ class Field:
         if target_pos[1] < 0 or target_pos[1] >= self.height:
             return
 
-
         if self.field[target_pos[0]][target_pos[1]].is_occupied():
+            if self.field[agent.pos[0]][agent.pos[1]] is None:
+                print('cant give birth and None, harakiri', agent.pos[0], agent.pos[1], self.field[agent.pos[0]][agent.pos[1]])
             self.kill_agent(agent.pos)
             return
 
