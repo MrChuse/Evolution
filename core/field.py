@@ -243,6 +243,8 @@ class Field:
         return agent.pos
 
     def photosyn(self, agent):
+        agent.eats['photo'] += 1
+        agent.clamp_eats()
         agent.energy += self.field[agent.pos[0]][agent.pos[1]].photosyn_nrg
 
     def eat(self, agent, target_pos, index):
@@ -259,6 +261,8 @@ class Field:
             return
 
         if not self.field[target_pos[0]][target_pos[1]].is_occupied():
+            agent.eats['meat'] += 1
+            agent.clamp_eats()
             agent.energy += self.field[target_pos[0]][target_pos[1]].get_meat()
         else:
             agent.energy -= 4
@@ -275,6 +279,8 @@ class Field:
         if abs(agent.pos[0] - target_pos[0]) > agent.radius or abs(agent.pos[1] - target_pos[1]) > agent.radius:
             return
 
+        agent.eats['minerals'] += 1
+        agent.clamp_eats()
         agent.energy += self.field[target_pos[0]][target_pos[1]].get_mineral()
 
     def get_info(self, agent, target_pos):
