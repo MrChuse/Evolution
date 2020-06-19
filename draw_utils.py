@@ -7,6 +7,7 @@ LEAVES = (0, 102, 51)
 GRASS = (153, 204, 51)
 WATER = (153, 255, 255)
 BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
 
 CACTUS = (0, 102, 51)
 WHEAT = (255, 255, 2)
@@ -44,6 +45,16 @@ def energy_to_color(en):
         d = en/1024
         return list(YELLOW[i] * (1 - d) + RED[i] * d for i in range(3))
 
+
+def eats_to_color(eats):
+    s = sum(eats.values())
+    print(s)
+    if s == 0:
+        return WHITE
+    meat = eats['meat'] / s
+    minerals = eats['minerals'] / s
+    photo = eats['photo'] / s
+    return [RED[i] * meat + BLUE[i] * minerals + GREEN[i] * photo for i in range(3)]
 
 cell_color_map = {4: ROCK,
                   0: SAND,
