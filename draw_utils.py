@@ -48,7 +48,6 @@ def energy_to_color(en):
 
 def eats_to_color(eats):
     s = sum(eats.values())
-    print(s)
     if s == 0:
         return WHITE
     meat = eats['meat'] / s
