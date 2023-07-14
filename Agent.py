@@ -1,4 +1,6 @@
 import brain
+from collections import defaultdict
+
 
 class Agent:
     """
@@ -41,12 +43,21 @@ class Agent:
             self.brain = brain.InterpreterBrain(*brain_settings)
         else:
             raise NotImplementedError
-
+        self.eats = defaultdict(int)
+        self.max_eats = 100
         self.make_a_move = self.brain.make_a_move
         self.get_brain_size = self.brain.get_brain_size
 
     def __str__(self):
         return self.name
+
+    def clamp_eats(self):
+        s = 0
+        for value in self.eats.values():
+            s += value
+        if s > self.max_eats:
+            for key in self.eats.keys():
+                self.eats[key] = max(0, self.eats[key] - 1)
 
     def mutate(self, rng, mutation_settings):
         if rng.random() > mutation_settings.change_radius_probability:
